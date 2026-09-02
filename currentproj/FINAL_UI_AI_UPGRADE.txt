@@ -1,0 +1,37 @@
+ODISHA FLOOD EWS SIH 2026 — FINAL UI/AI UPGRADE
+
+Included changes
+1. AI People's Assistant backend endpoint: POST /api/v1/ai/assistant
+   - Works without an external API key using the built-in local safety assistant.
+   - Supports English, Hindi, Odia, Bengali and Telugu.
+2. Main landing page
+   - Added SIH 2026 Live Presentation section (no PPT required).
+   - Added Sources & Datasets table.
+   - Added dynamic source/model status and satellite metrics.
+   - Added language switcher and light/dark theme switch.
+   - Added responsive mobile/tablet layout enhancements.
+   - Added Presenter Mode.
+3. Citizen and Admin portals
+   - AI assistant now sends selected language to backend.
+   - Added global language switcher (English/Hindi/Odia/Bengali/Telugu).
+   - Added light/dark theme compatibility.
+   - Added live source/model status bar that refreshes automatically.
+   - Existing portal-specific language/theme controls are preserved.
+4. Existing backend, ML model and NASA IMERG data are preserved.
+
+Run
+cd backend
+uvicorn main:app --reload
+
+Test AI
+POST http://127.0.0.1:8000/api/v1/ai/assistant
+JSON:
+{"message":"What should I do during a flood?","language":"en","context":{}}
+
+Test source status
+http://127.0.0.1:8000/api/v1/disaster/source-status
+
+Important
+- The local assistant is informational and does not issue official evacuation orders.
+- Radar remains a real RainViewer visualization/metadata source; numeric radar rainfall is not fabricated.
+- The prototype ML model should be described as a prototype unless it is later retrained and validated on historical Odisha flood-event data.

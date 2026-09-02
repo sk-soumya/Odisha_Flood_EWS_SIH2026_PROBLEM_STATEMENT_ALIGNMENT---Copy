@@ -1,0 +1,12 @@
+ODISHA FLOOD EWS SIH 2026 - FINAL DEMO STATUS
+
+1. Trained ML model: active
+2. Open-Meteo observation: active
+3. Open-Meteo NWP-compatible forecast input: active
+4. NASA GPM IMERG local NetCDF4 satellite precipitation: active
+5. RainViewer radar metadata/visualization: active
+6. Numeric radar rainfall: not active (no trustworthy point-mm feed)
+7. Citizen flood reports: admin page is backed by the same reports database; it will show real submitted reports only.
+8. Main portal: local AI-risk heat visualization added around the selected prediction point.
+
+IMPORTANT: prototype ML model is not a scientifically validated Odisha historical-event model. Present it as a prototype inference engine until trained/validated with real historical event labels.

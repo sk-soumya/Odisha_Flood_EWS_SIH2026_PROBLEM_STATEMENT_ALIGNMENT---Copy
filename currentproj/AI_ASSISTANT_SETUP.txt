@@ -1,0 +1,10 @@
+# AI PEOPLE'S ASSISTANT — FINAL
+
+The assistant is available on the main website, citizen portal and admin portal.
+Backend endpoint: POST /api/v1/ai/assistant
+
+It now works without an external API key by using the built-in local safety assistant.
+An external LLM key may be added later, but it is not required for the demo.
+
+The assistant supports English, Hindi, Odia, Bengali and Telugu at the UI level and receives the selected language with each request.
+It is informational only and does not issue official evacuation orders.

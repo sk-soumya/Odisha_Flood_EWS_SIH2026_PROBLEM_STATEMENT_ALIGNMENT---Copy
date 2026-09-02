@@ -1,0 +1,35 @@
+ODISHA FLOOD EWS - CORRECTED CONNECTED PROJECT
+================================================
+
+This is the supplied SIH 2026 project with corrections applied.
+
+Important corrections:
+- main.py now imports Optional correctly.
+- Added nearby emergency-facility API:
+    GET /api/v1/citizen/emergency-info-v2
+- Police search rejects jail/prison/residential-colony false positives.
+- Hospital/police results include Google Maps navigation URLs.
+- OSRM road route information is included when available.
+- Government shelter results are distance-sorted and include navigation.
+- Citizen Emergency page is connected to the nearby-help API.
+- Existing users/admin/reports/push/captcha/messaging modules are preserved.
+- Dashboard contract test updated to match the host-derived backend URL.
+
+Run from:
+    SIH 2026/backend
+
+Command:
+    python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+
+Open:
+    http://127.0.0.1:8000/
+    http://127.0.0.1:8000/citizen/
+    http://127.0.0.1:8000/admin/
+    http://127.0.0.1:8000/docs
+
+Validation completed on this package:
+    Python syntax: PASS
+    JavaScript syntax: PASS
+    pytest: PASS
+
+Keep .env private and do not commit it to a public repository.

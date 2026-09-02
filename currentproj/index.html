@@ -1,0 +1,6231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Odisha Flood EWS | Live Weather & Flood Intelligence</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+/* =========================================================
+   ROOT
+========================================================= */
+
+:root{
+    --bg:#020617;
+    --panel:#08101f;
+    --card:#0d172b;
+
+    --border:rgba(148,163,184,.13);
+
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --dim:#64748b;
+
+    --cyan:#06b6d4;
+    --blue:#3b82f6;
+    --green:#22c55e;
+    --orange:#f97316;
+    --red:#ef4444;
+    --purple:#8b5cf6;
+
+    --shadow:0 20px 60px rgba(0,0,0,.35);
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:Inter,system-ui,Arial,sans-serif;
+
+    color:var(--text);
+
+    min-height:100vh;
+
+    overflow-x:hidden;
+
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(6,182,212,.20),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 85% 25%,
+            rgba(59,130,246,.18),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 50% 90%,
+            rgba(139,92,246,.14),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #020617 0%,
+            #07152b 45%,
+            #031b2b 70%,
+            #020617 100%
+        );
+
+    background-size:
+        180% 180%,
+        160% 160%,
+        180% 180%,
+        100% 100%;
+
+    animation:
+        backgroundFlow 18s ease-in-out infinite alternate;
+}
+
+@keyframes backgroundFlow{
+
+    0%{
+        background-position:
+            0% 0%,
+            100% 0%,
+            50% 100%,
+            0 0;
+    }
+
+    50%{
+        background-position:
+            30% 20%,
+            70% 40%,
+            20% 70%,
+            0 0;
+    }
+
+    100%{
+        background-position:
+            60% 40%,
+            20% 70%,
+            80% 20%,
+            0 0;
+    }
+}
+
+
+/* =========================================================
+   AMBIENT PARTICLES
+========================================================= */
+
+.ambient-weather{
+    position:fixed;
+    inset:0;
+
+    pointer-events:none;
+
+    z-index:-1;
+
+    overflow:hidden;
+}
+
+.ambient-weather span{
+    position:absolute;
+
+    width:5px;
+    height:5px;
+
+    border-radius:50%;
+
+    background:#67e8f9;
+
+    box-shadow:
+        0 0 20px #22d3ee;
+
+    opacity:.35;
+
+    animation:
+        floatParticle 12s linear infinite;
+}
+
+.ambient-weather span:nth-child(1){
+    left:8%;
+    top:90%;
+    animation-duration:15s;
+}
+
+.ambient-weather span:nth-child(2){
+    left:25%;
+    top:80%;
+    animation-duration:19s;
+}
+
+.ambient-weather span:nth-child(3){
+    left:43%;
+    top:95%;
+    animation-duration:13s;
+}
+
+.ambient-weather span:nth-child(4){
+    left:65%;
+    top:85%;
+    animation-duration:17s;
+}
+
+.ambient-weather span:nth-child(5){
+    left:80%;
+    top:92%;
+    animation-duration:21s;
+}
+
+.ambient-weather span:nth-child(6){
+    left:92%;
+    top:75%;
+    animation-duration:16s;
+}
+
+@keyframes floatParticle{
+
+    0%{
+        transform:
+            translate3d(0,100px,0)
+            scale(.5);
+
+        opacity:0;
+    }
+
+    15%{
+        opacity:.45;
+    }
+
+    50%{
+        transform:
+            translate3d(80px,-400px,0)
+            scale(1);
+    }
+
+    100%{
+        transform:
+            translate3d(-100px,-900px,0)
+            scale(.2);
+
+        opacity:0;
+    }
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.navbar{
+    position:sticky;
+    top:0;
+
+    z-index:5000;
+
+    min-height:72px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 28px;
+
+    background:rgba(2,6,23,.88);
+
+    backdrop-filter:blur(18px);
+
+    border-bottom:1px solid var(--border);
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+
+    gap:12px;
+}
+
+.brand-logo{
+    width:42px;
+    height:42px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #06b6d4,
+            #2563eb
+        );
+
+    box-shadow:
+        0 0 30px rgba(6,182,212,.25);
+
+    font-size:22px;
+}
+
+.brand-text h1{
+    font-size:17px;
+    font-weight:900;
+    letter-spacing:-.4px;
+}
+
+.brand-text span{
+    color:#64748b;
+
+    font-size:9px;
+
+    letter-spacing:1.5px;
+
+    text-transform:uppercase;
+}
+
+.nav-links{
+    display:flex;
+    align-items:center;
+
+    gap:6px;
+}
+
+.nav-links a{
+    text-decoration:none;
+
+    color:#94a3b8;
+
+    font-size:12px;
+    font-weight:700;
+
+    padding:10px 14px;
+
+    border-radius:8px;
+
+    transition:.25s;
+}
+
+.nav-links a:hover,
+.nav-links a.active{
+    color:white;
+
+    background:#111c32;
+
+    transform:translateY(-1px);
+}
+
+.live-dot{
+    width:7px;
+    height:7px;
+
+    flex-shrink:0;
+
+    border-radius:50%;
+
+    background:#22c55e;
+
+    box-shadow:
+        0 0 12px #22c55e;
+
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+
+    50%{
+        opacity:.35;
+        transform:scale(.75);
+    }
+
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.page{
+    width:100%;
+
+    max-width:1700px;
+
+    margin:auto;
+}
+
+.section{
+    padding:55px 30px;
+}
+
+.section-title{
+    margin-bottom:25px;
+}
+
+.section-title small{
+    color:var(--cyan);
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:2px;
+
+    text-transform:uppercase;
+}
+
+.section-title h2{
+    margin-top:6px;
+
+    font-size:28px;
+
+    font-weight:900;
+}
+
+.section-title p{
+    color:var(--muted);
+
+    font-size:13px;
+
+    margin-top:7px;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero{
+    min-height:410px;
+
+    display:grid;
+
+    grid-template-columns:1.4fr .8fr;
+
+    gap:25px;
+
+    padding:45px 30px;
+}
+
+.hero-left{
+    padding:35px;
+
+    border:1px solid var(--border);
+
+    border-radius:24px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(6,182,212,.10),
+            rgba(59,130,246,.06)
+        ),
+        rgba(8,16,31,.78);
+
+    box-shadow:var(--shadow);
+
+    transition:.3s;
+}
+
+.hero-left:hover{
+    transform:translateY(-4px);
+
+    border-color:
+        rgba(34,211,238,.25);
+
+    box-shadow:
+        0 25px 70px rgba(0,0,0,.4),
+        0 0 35px rgba(6,182,212,.08);
+}
+
+.hero-badge{
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:7px 11px;
+
+    border-radius:20px;
+
+    background:
+        rgba(6,182,212,.09);
+
+    border:1px solid
+        rgba(6,182,212,.2);
+
+    color:#67e8f9;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:1px;
+}
+
+.hero h2{
+    margin-top:22px;
+
+    max-width:850px;
+
+    font-size:clamp(32px,4vw,58px);
+
+    line-height:1.02;
+
+    letter-spacing:-2px;
+}
+
+.hero h2 span{
+    background:
+        linear-gradient(
+            90deg,
+            #22d3ee,
+            #60a5fa
+        );
+
+    -webkit-background-clip:text;
+
+    background-clip:text;
+
+    color:transparent;
+}
+
+.hero p{
+    margin-top:18px;
+
+    max-width:700px;
+
+    color:#94a3b8;
+
+    line-height:1.7;
+
+    font-size:14px;
+}
+
+.hero-buttons{
+    margin-top:25px;
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+}
+
+.primary-btn,
+.secondary-btn{
+    border:0;
+
+    cursor:pointer;
+
+    padding:13px 18px;
+
+    border-radius:10px;
+
+    font-size:12px;
+
+    font-weight:800;
+
+    transition:.2s;
+}
+
+.primary-btn{
+    position:relative;
+
+    overflow:hidden;
+
+    background:
+        linear-gradient(
+            90deg,
+            #06b6d4,
+            #3b82f6
+        );
+
+    color:white;
+}
+
+.primary-btn::after{
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:-100%;
+
+    width:60%;
+    height:100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.3),
+            transparent
+        );
+
+    transform:skewX(-20deg);
+
+    transition:.6s;
+}
+
+.primary-btn:hover::after{
+    left:140%;
+}
+
+.secondary-btn{
+    background:#101b30;
+
+    border:1px solid var(--border);
+
+    color:#cbd5e1;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover{
+    transform:translateY(-2px);
+}
+
+
+/* =========================================================
+   SYSTEM CARD
+========================================================= */
+
+.system-card{
+    border:1px solid var(--border);
+
+    border-radius:24px;
+
+    background:rgba(8,16,31,.8);
+
+    padding:25px;
+
+    box-shadow:var(--shadow);
+
+    transition:.3s;
+}
+
+.system-card:hover{
+    transform:translateY(-4px);
+
+    border-color:
+        rgba(34,211,238,.25);
+}
+
+.system-card h3{
+    font-size:14px;
+
+    font-weight:900;
+}
+
+.system-status{
+    margin-top:20px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:13px;
+
+    border-radius:10px;
+
+    background:#071b18;
+
+    color:#4ade80;
+
+    font-size:11px;
+
+    font-weight:800;
+}
+
+.system-stat{
+    margin-top:12px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    padding:13px;
+
+    border-radius:9px;
+
+    background:#0a1325;
+
+    color:#94a3b8;
+
+    font-size:11px;
+}
+
+.system-stat b{
+    color:white;
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.search-area{
+    padding:0 30px 30px;
+
+    position:relative;
+
+    z-index:100;
+}
+
+.search-box{
+    display:flex;
+
+    gap:10px;
+
+    max-width:1000px;
+
+    margin:auto;
+
+    padding:8px;
+
+    border-radius:15px;
+
+    background:#091326;
+
+    border:1px solid var(--border);
+
+    box-shadow:var(--shadow);
+
+    transition:.3s;
+}
+
+.search-box:focus-within{
+    border-color:
+        rgba(34,211,238,.45);
+
+    box-shadow:
+        0 0 35px rgba(6,182,212,.10),
+        var(--shadow);
+}
+
+.search-box input{
+    flex:1;
+
+    min-width:0;
+
+    border:0;
+
+    outline:0;
+
+    background:transparent;
+
+    color:white;
+
+    padding:13px;
+
+    font-size:13px;
+}
+
+.search-box input::placeholder{
+    color:#64748b;
+}
+
+.search-btn{
+    border:0;
+
+    border-radius:10px;
+
+    padding:0 22px;
+
+    background:#2563eb;
+
+    color:white;
+
+    font-weight:800;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.search-btn:hover{
+    background:#3b82f6;
+
+    transform:translateY(-1px);
+}
+
+.search-results,
+.search-suggestions{
+    max-width:1000px;
+
+    margin:8px auto 0;
+
+    overflow:hidden;
+
+    border-radius:14px;
+
+    background:
+        rgba(7,15,32,.97);
+
+    border:1px solid
+        rgba(148,163,184,.15);
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.45);
+
+    backdrop-filter:blur(18px);
+}
+
+.search-results{
+    display:none;
+}
+
+.suggestion,
+.search-result{
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:13px 16px;
+
+    cursor:pointer;
+
+    border-bottom:
+        1px solid
+        rgba(148,163,184,.08);
+
+    font-size:12px;
+
+    transition:.2s;
+}
+
+.suggestion:hover,
+.search-result:hover{
+    background:
+        linear-gradient(
+            90deg,
+            rgba(6,182,212,.12),
+            rgba(59,130,246,.08)
+        );
+
+    padding-left:22px;
+}
+
+.suggestion-icon{
+    width:34px;
+    height:34px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-shrink:0;
+
+    border-radius:9px;
+
+    background:#10213a;
+
+    font-size:16px;
+}
+
+.suggestion-name{
+    font-size:12px;
+
+    font-weight:800;
+}
+
+.suggestion-location,
+.search-result small{
+    display:block;
+
+    margin-top:3px;
+
+    color:#64748b;
+
+    font-size:9px;
+}
+
+.search-loading{
+    padding:15px;
+
+    color:#64748b;
+
+    font-size:11px;
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+.dashboard{
+    display:grid;
+
+    grid-template-columns:390px 1fr;
+
+    gap:20px;
+
+    padding:0 30px 40px;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar{
+    background:#070f20;
+
+    border:1px solid var(--border);
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    box-shadow:var(--shadow);
+
+    transition:.3s;
+}
+
+.sidebar:hover{
+    border-color:
+        rgba(34,211,238,.22);
+}
+
+.sidebar-header{
+    padding:20px;
+
+    border-bottom:
+        1px solid var(--border);
+}
+
+.location-name{
+    font-size:19px;
+
+    font-weight:900;
+}
+
+.location-meta{
+    margin-top:5px;
+
+    color:#64748b;
+
+    font-size:10px;
+}
+
+.risk-card{
+    margin:15px;
+
+    padding:20px;
+
+    border-radius:16px;
+
+    background:#0b1529;
+
+    border:1px solid var(--border);
+}
+
+.risk-ring{
+    width:190px;
+    height:190px;
+
+    margin:10px auto 15px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    position:relative;
+
+    background:
+        conic-gradient(
+            var(--cyan) 0deg,
+            var(--blue) var(--risk-angle),
+            #101d32 var(--risk-angle),
+            #101d32 360deg
+        );
+
+    transition:background .6s ease;
+}
+
+.risk-ring::before{
+    content:"";
+
+    position:absolute;
+
+    width:162px;
+    height:162px;
+
+    border-radius:50%;
+
+    background:#091225;
+
+    box-shadow:
+        inset 0 0 30px rgba(0,0,0,.4);
+}
+
+.risk-number{
+    position:relative;
+
+    font-size:40px;
+
+    font-weight:900;
+}
+
+.risk-label{
+    text-align:center;
+
+    color:#64748b;
+
+    font-size:9px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+}
+
+.risk-status{
+    margin-top:15px;
+
+    padding:11px;
+
+    text-align:center;
+
+    border-radius:9px;
+
+    font-size:12px;
+
+    font-weight:900;
+}
+
+.normal{
+    color:#4ade80;
+
+    background:
+        rgba(34,197,94,.10);
+}
+
+.high{
+    color:#fb923c;
+
+    background:
+        rgba(249,115,22,.10);
+}
+
+.critical{
+    color:#f87171;
+
+    background:
+        rgba(239,68,68,.10);
+}
+
+
+/* =========================================================
+   METRICS
+========================================================= */
+
+.metrics{
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:8px;
+
+    padding:0 15px 15px;
+}
+
+.metric{
+    background:#091225;
+
+    border:1px solid
+        rgba(148,163,184,.07);
+
+    padding:13px;
+
+    border-radius:10px;
+
+    transition:.3s;
+}
+
+.metric:hover{
+    transform:translateY(-4px);
+
+    background:#0d1b31;
+
+    border-color:
+        rgba(34,211,238,.35);
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.3);
+}
+
+.metric-label{
+    color:#64748b;
+
+    font-size:8px;
+
+    font-weight:700;
+
+    letter-spacing:.8px;
+}
+
+.metric-value{
+    margin-top:5px;
+
+    font-size:15px;
+
+    font-weight:900;
+}
+
+.directive{
+    margin:0 15px 15px;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    background:#0b172b;
+
+    color:#94a3b8;
+
+    font-size:11px;
+
+    line-height:1.6;
+}
+
+.directive b{
+    color:white;
+}
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+.map-wrapper{
+    min-height:650px;
+
+    position:relative;
+
+    overflow:hidden;
+
+    border-radius:20px;
+
+    border:1px solid var(--border);
+
+    box-shadow:var(--shadow);
+}
+
+#map{
+    width:100%;
+    height:650px;
+}
+
+.map-control{
+    position:absolute;
+
+    top:15px;
+    right:15px;
+
+    z-index:1000;
+
+    width:290px;
+
+    max-height:calc(100% - 30px);
+
+    overflow-y:auto;
+
+    padding:15px;
+
+    border-radius:14px;
+
+    background:
+        rgba(3,10,24,.92);
+
+    backdrop-filter:blur(12px);
+
+    border:1px solid
+        rgba(148,163,184,.15);
+
+    box-shadow:var(--shadow);
+}
+
+.map-control h3{
+    font-size:12px;
+
+    font-weight:900;
+}
+
+.map-control small{
+    color:#64748b;
+
+    font-size:8px;
+}
+
+.map-weather-grid{
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:7px;
+
+    margin-top:12px;
+}
+
+.map-weather{
+    background:#0b162b;
+
+    border-radius:8px;
+
+    padding:10px;
+
+    transition:.2s;
+}
+
+.map-weather:hover{
+    background:#10203a;
+
+    transform:translateY(-2px);
+}
+
+.map-weather span{
+    display:block;
+
+    color:#64748b;
+
+    font-size:8px;
+}
+
+.map-weather b{
+    display:block;
+
+    margin-top:3px;
+
+    font-size:11px;
+}
+
+.layer-buttons{
+    display:flex;
+
+    gap:6px;
+
+    margin-top:10px;
+}
+
+.layer-btn{
+    flex:1;
+
+    border:1px solid var(--border);
+
+    background:#101b30;
+
+    color:#94a3b8;
+
+    padding:8px 5px;
+
+    border-radius:7px;
+
+    cursor:pointer;
+
+    font-size:9px;
+
+    transition:.2s;
+}
+
+.layer-btn:hover{
+    transform:translateY(-2px);
+}
+
+.layer-btn.active{
+    background:#12304b;
+
+    color:#67e8f9;
+
+    border-color:
+        rgba(34,211,238,.3);
+}
+
+
+/* =========================================================
+   LIVE WIND PANEL
+========================================================= */
+
+.live-wind-panel{
+    margin-top:12px;
+
+    padding:13px;
+
+    border-radius:11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(6,182,212,.10),
+            rgba(59,130,246,.08)
+        );
+
+    border:1px solid
+        rgba(6,182,212,.15);
+}
+
+.live-wind-title{
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
+    color:#67e8f9;
+
+    font-size:9px;
+
+    font-weight:900;
+
+    letter-spacing:1px;
+}
+
+.wind-main{
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    margin-top:10px;
+}
+
+.wind-speed-big{
+    font-size:20px;
+
+    font-weight:900;
+}
+
+.wind-direction-big{
+    color:#67e8f9;
+
+    font-size:12px;
+
+    font-weight:900;
+}
+
+.wind-details{
+    display:grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:5px;
+
+    margin-top:10px;
+}
+
+.wind-details div{
+    padding:7px;
+
+    border-radius:7px;
+
+    background:#09182c;
+
+    text-align:center;
+}
+
+.wind-details span{
+    display:block;
+
+    color:#64748b;
+
+    font-size:7px;
+}
+
+.wind-details b{
+    display:block;
+
+    margin-top:3px;
+
+    font-size:10px;
+}
+
+
+/* =========================================================
+   LIVE WIND PARTICLES
+========================================================= */
+
+.movement-particle{
+    background:transparent !important;
+
+    border:0 !important;
+}
+
+.live-wind-particle{
+    color:#67e8f9;
+
+    font-size:17px;
+
+    font-weight:900;
+
+    text-shadow:
+        0 0 6px rgba(34,211,238,.9),
+        0 0 14px rgba(6,182,212,.6);
+
+    animation:
+        windPulse .8s ease-in-out infinite alternate;
+}
+
+.live-cloud-particle{
+    color:#e2e8f0;
+
+    font-size:16px;
+
+    opacity:.65;
+
+    text-shadow:
+        0 0 7px rgba(255,255,255,.6);
+
+    animation:
+        cloudPulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes windPulse{
+
+    from{
+        opacity:.35;
+    }
+
+    to{
+        opacity:1;
+    }
+}
+
+@keyframes cloudPulse{
+
+    from{
+        opacity:.35;
+    }
+
+    to{
+        opacity:.85;
+    }
+}
+
+
+/* =========================================================
+   FORECAST
+========================================================= */
+
+.forecast-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(7,1fr);
+
+    gap:10px;
+}
+
+.forecast-card{
+    padding:17px 10px;
+
+    text-align:center;
+
+    border-radius:14px;
+
+    background:#0a1427;
+
+    border:1px solid var(--border);
+
+    transition:.3s;
+}
+
+.forecast-card:hover{
+    transform:translateY(-6px);
+
+    background:#0e1b31;
+
+    border-color:
+        rgba(34,211,238,.3);
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,.35),
+        0 0 25px rgba(59,130,246,.15);
+}
+
+.forecast-day{
+    color:#94a3b8;
+
+    font-size:10px;
+
+    font-weight:800;
+}
+
+.forecast-icon{
+    margin:12px 0;
+
+    font-size:27px;
+}
+
+.forecast-temp{
+    font-size:17px;
+
+    font-weight:900;
+}
+
+.forecast-rain{
+    margin-top:7px;
+
+    color:#38bdf8;
+
+    font-size:9px;
+}
+
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+.chart-grid{
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:18px;
+}
+
+.chart-card{
+    padding:20px;
+
+    min-height:300px;
+
+    border-radius:18px;
+
+    background:#081225;
+
+    border:1px solid var(--border);
+
+    box-shadow:var(--shadow);
+
+    transition:.3s;
+}
+
+.chart-card:hover{
+    transform:translateY(-5px);
+
+    border-color:
+        rgba(34,211,238,.25);
+}
+
+.chart-card h3{
+    font-size:13px;
+
+    font-weight:900;
+}
+
+.chart-card p{
+    margin-top:4px;
+
+    color:#64748b;
+
+    font-size:9px;
+}
+
+.chart-container{
+    height:220px;
+
+    margin-top:18px;
+}
+
+
+/* =========================================================
+   LIVE WEATHER
+========================================================= */
+
+.live-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:12px;
+}
+
+.live-card{
+    padding:20px;
+
+    border-radius:15px;
+
+    background:#091326;
+
+    border:1px solid var(--border);
+
+    transition:.3s;
+}
+
+.live-card:hover{
+    transform:translateY(-6px);
+
+    border-color:
+        rgba(34,211,238,.35);
+
+    box-shadow:
+        0 15px 45px rgba(0,0,0,.35),
+        0 0 25px rgba(6,182,212,.08);
+}
+
+.live-icon{
+    font-size:22px;
+}
+
+.live-card span{
+    display:block;
+
+    margin-top:12px;
+
+    color:#64748b;
+
+    font-size:9px;
+}
+
+.live-card b{
+    display:block;
+
+    margin-top:4px;
+
+    font-size:21px;
+}
+
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.info-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:18px;
+}
+
+.info-card{
+    padding:25px;
+
+    min-height:180px;
+
+    border-radius:18px;
+
+    background:#081225;
+
+    border:1px solid var(--border);
+
+    transition:.3s;
+}
+
+.info-card:hover{
+    transform:translateY(-6px);
+
+    border-color:
+        rgba(34,211,238,.3);
+
+    box-shadow:
+        0 18px 50px rgba(0,0,0,.35);
+}
+
+.info-card .icon{
+    font-size:25px;
+}
+
+.info-card h3{
+    margin-top:13px;
+
+    font-size:14px;
+}
+
+.info-card p{
+    margin-top:10px;
+
+    color:#94a3b8;
+
+    font-size:11px;
+
+    line-height:1.7;
+}
+
+.source-list{
+    margin-top:12px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+}
+
+.source-item{
+    padding:10px;
+
+    border-radius:8px;
+
+    background:#0b172b;
+
+    color:#94a3b8;
+
+    font-size:10px;
+
+    transition:.2s;
+}
+
+.source-item:hover{
+    transform:translateX(5px);
+
+    background:#10203a;
+}
+
+.source-item b{
+    color:white;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.footer{
+    padding:30px;
+
+    border-top:1px solid var(--border);
+
+    text-align:center;
+
+    color:#475569;
+
+    font-size:10px;
+
+    background:#020611;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:1100px){
+
+    .hero{
+        grid-template-columns:1fr;
+    }
+
+    .dashboard{
+        grid-template-columns:1fr;
+    }
+
+    .forecast-grid{
+        grid-template-columns:
+            repeat(4,1fr);
+    }
+
+    .live-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .info-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:750px){
+
+    .navbar{
+        height:auto;
+
+        padding:12px 15px;
+
+        align-items:flex-start;
+
+        gap:10px;
+    }
+
+    .brand-text h1{
+        font-size:13px;
+    }
+
+    .brand-text span{
+        font-size:7px;
+    }
+
+    .nav-links{
+        overflow-x:auto;
+
+        max-width:55%;
+    }
+
+    .nav-links a{
+        white-space:nowrap;
+
+        padding:8px 10px;
+    }
+
+    .hero,
+    .section{
+        padding:30px 15px;
+    }
+
+    .search-area{
+        padding:0 15px 25px;
+    }
+
+    .dashboard{
+        padding:0 15px 30px;
+    }
+
+    .hero-left{
+        padding:25px;
+    }
+
+    .hero h2{
+        font-size:34px;
+    }
+
+    .map-control{
+        width:230px;
+    }
+
+    #map{
+        height:550px;
+    }
+
+    .map-wrapper{
+        min-height:550px;
+    }
+
+    .chart-grid{
+        grid-template-columns:1fr;
+    }
+
+    .forecast-grid{
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+    .live-grid{
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .search-box{
+        flex-direction:column;
+    }
+
+    .search-btn{
+        padding:12px;
+    }
+
+    .wind-main{
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:5px;
+    }
+}
+
+
+/* ============================================================
+   GLOBAL AI PEOPLE'S ASSISTANT
+============================================================ */
+.ews-ai-launcher{
+    position:fixed;
+    right:22px;
+    bottom:22px;
+    z-index:99999;
+    border:1px solid rgba(96,165,250,.35);
+    border-radius:999px;
+    padding:13px 17px;
+    background:linear-gradient(135deg,#1478d4,#7c3aed);
+    color:#fff;
+    font-weight:800;
+    box-shadow:0 12px 35px rgba(0,0,0,.35);
+    cursor:pointer;
+}
+.ews-ai-panel{
+    position:fixed;
+    right:22px;
+    bottom:82px;
+    z-index:99999;
+    width:min(390px,calc(100vw - 30px));
+    height:min(590px,calc(100vh - 110px));
+    display:none;
+    flex-direction:column;
+    overflow:hidden;
+    border:1px solid rgba(148,163,184,.25);
+    border-radius:18px;
+    background:#08101f;
+    color:#f8fafc;
+    box-shadow:0 25px 80px rgba(0,0,0,.5);
+}
+.ews-ai-panel.open{display:flex}
+.ews-ai-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;
+    background:linear-gradient(135deg,#0d1b2e,#122b4a);
+    border-bottom:1px solid rgba(148,163,184,.18);
+}
+.ews-ai-head strong{font-size:15px}
+.ews-ai-head small{display:block;color:#9fb0c5;margin-top:3px}
+.ews-ai-close{
+    border:0;background:transparent;color:#fff;font-size:22px;cursor:pointer;
+}
+.ews-ai-messages{
+    flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px;
+}
+.ews-ai-msg{
+    max-width:88%;padding:10px 12px;border-radius:13px;line-height:1.45;
+    white-space:pre-wrap;font-size:13px;
+}
+.ews-ai-msg.bot{align-self:flex-start;background:#10253b;border:1px solid #1e3c56}
+.ews-ai-msg.user{align-self:flex-end;background:#1478d4}
+.ews-ai-form{display:flex;gap:8px;padding:11px;border-top:1px solid #1e3c56}
+.ews-ai-input{
+    flex:1;min-width:0;resize:none;border:1px solid #29415d;
+    border-radius:10px;padding:10px;background:#091525;color:#fff;outline:none;
+}
+.ews-ai-send{
+    border:0;border-radius:10px;padding:0 14px;background:#1478d4;color:#fff;font-weight:800;
+}
+.ews-ai-quick{display:flex;gap:7px;overflow:auto;padding:0 12px 10px}
+.ews-ai-quick button{
+    flex:0 0 auto;border:1px solid #29415d;border-radius:999px;
+    background:#0d1b2e;color:#dcecff;padding:7px 9px;font-size:11px;cursor:pointer;
+}
+.ews-ai-status{font-size:11px;color:#9fb0c5;padding:0 13px 8px}
+@media(max-width:600px){
+    .ews-ai-launcher{right:14px;bottom:14px}
+    .ews-ai-panel{right:14px;bottom:70px;width:calc(100vw - 28px)}
+}
+
+
+/* EWS GLOBAL EXPERIENCE */
+:root[data-ews-theme="light"]{--bg:#f3f7fb;--panel:#ffffff;--card:#eef4f9;--border:rgba(15,23,42,.12);--text:#102033;--muted:#526579;--dim:#6b7f93;}
+body.ews-light{color:#102033!important;background:linear-gradient(135deg,#f6fbff,#eaf3fb,#ffffff)!important;animation:none!important}
+body.ews-light .navbar,body.ews-light .sidebar,body.ews-light .info-card,body.ews-light .metric,body.ews-light .hero,body.ews-light .dashboard,body.ews-light .section{background:rgba(255,255,255,.92);color:#102033}
+#ewsGlobalControls{position:fixed;top:16px;right:16px;z-index:100001;display:flex;gap:7px;align-items:center;background:rgba(8,16,31,.82);backdrop-filter:blur(12px);padding:7px;border:1px solid rgba(148,163,184,.2);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+#ewsGlobalControls select,#ewsGlobalControls button{border:1px solid rgba(148,163,184,.25);background:#0b1728;color:#fff;border-radius:9px;padding:8px 10px;font-weight:800;cursor:pointer}
+body.ews-light #ewsGlobalControls{background:rgba(255,255,255,.9)} body.ews-light #ewsGlobalControls select,body.ews-light #ewsGlobalControls button{background:#eef5fb;color:#102033}
+.ews-demo-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:18px 0}.ews-demo-card{padding:14px;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.05)}.ews-demo-card b{display:block;margin-top:6px;font-size:18px}.ews-online{font-weight:900}.ews-presenter{padding:18px;border:1px solid rgba(59,130,246,.35);border-radius:18px;background:linear-gradient(135deg,rgba(14,53,89,.75),rgba(25,31,72,.78));margin:20px 0}.ews-presenter-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}.ews-presenter h2{margin-bottom:8px}.ews-presenter ul{padding-left:18px;line-height:1.7}.ews-presenter button{border:0;border-radius:10px;padding:10px 14px;font-weight:900;cursor:pointer}.ews-dataset-table{width:100%;border-collapse:collapse}.ews-dataset-table th,.ews-dataset-table td{border-bottom:1px solid var(--border);padding:10px;text-align:left;vertical-align:top;font-size:12px}.ews-dataset-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em}.ews-presenter-mode .navbar,.ews-presenter-mode .footer,#ewsGlobalControls,.ews-ai-launcher{opacity:.12;transition:.2s}.ews-presenter-mode .navbar:hover,.ews-presenter-mode .footer:hover,#ewsGlobalControls:hover,.ews-ai-launcher:hover{opacity:1}
+@media(max-width:900px){.ews-demo-strip{grid-template-columns:repeat(2,1fr)}.ews-presenter-grid{grid-template-columns:1fr}}
+@media(max-width:560px){#ewsGlobalControls{top:8px;right:8px}.ews-demo-strip{grid-template-columns:1fr}.navbar .nav-links{flex-wrap:wrap;gap:8px}}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- ======================================================
+     AMBIENT BACKGROUND
+====================================================== -->
+
+<div class="ambient-weather">
+
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+
+</div>
+
+
+<!-- ======================================================
+     NAVIGATION
+====================================================== -->
+
+<nav class="navbar">
+
+    <div class="brand">
+
+        <div class="brand-logo">
+            🌊
+        </div>
+
+        <div class="brand-text">
+
+            <h1>
+                ODISHA FLOOD EWS
+            </h1>
+
+            <span>
+                LIVE DISASTER INTELLIGENCE SYSTEM
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="nav-links">
+
+        <a href="#home" class="active">
+            Home
+        </a>
+
+        <a href="#weather">
+            Weather
+        </a>
+
+        <a href="#forecast">
+            Forecast
+        </a>
+
+        <a href="#about">
+            About
+        </a>
+
+        <a href="#contribution">
+            Contribution
+        </a>
+
+        <a href="#sources">
+            Sources
+        </a>
+
+        <a href="/citizen/">
+            Citizen Portal
+        </a>
+
+        <a href="/admin/">
+            Admin Portal
+        </a>
+
+        <span class="live-dot"></span>
+
+    </div>
+
+</nav>
+
+
+<main class="page">
+
+
+<!-- ======================================================
+     HOME
+====================================================== -->
+
+<section class="hero" id="home">
+
+    <div class="hero-left">
+
+        <div class="hero-badge">
+
+            <span class="live-dot"></span>
+
+            LIVE GEOSPATIAL MONITORING
+
+        </div>
+
+
+        <h2>
+
+            Odisha
+
+            <span>
+                Flood Early
+            </span>
+
+            Warning System
+
+        </h2>
+
+
+        <p>
+
+            Monitor live rainfall, weather conditions,
+            wind direction, cloud movement, flood probability
+            and multi-day forecasts from one dynamic
+            disaster-intelligence dashboard.
+
+        </p>
+
+
+        <div class="hero-buttons">
+
+            <button
+                class="primary-btn"
+                onclick="getLiveRisk()"
+            >
+                📍 USE MY LIVE LOCATION
+            </button>
+
+
+            <button
+                class="secondary-btn"
+                onclick="document.getElementById('weather').scrollIntoView()"
+            >
+                🌧️ VIEW LIVE WEATHER
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="system-card">
+
+        <h3>
+            📡 SYSTEM STATUS
+        </h3>
+
+
+        <div class="system-status">
+
+            <span class="live-dot"></span>
+
+            <span id="systemStatus">
+                SYSTEM READY
+            </span>
+
+        </div>
+
+
+        <div class="system-stat">
+
+            <span>
+                Weather
+            </span>
+
+            <b id="weatherStatus">
+                READY
+            </b>
+
+        </div>
+
+
+        <div class="system-stat">
+
+            <span>
+                Flood Engine
+            </span>
+
+            <b id="floodStatus">
+                READY
+            </b>
+
+        </div>
+
+
+        <div class="system-stat">
+
+            <span>
+                Last Update
+            </span>
+
+            <b id="lastUpdate">
+                --
+            </b>
+
+        </div>
+
+
+        <div class="system-stat">
+
+            <span>
+                Location
+            </span>
+
+            <b id="systemLocation">
+                Bhubaneswar
+            </b>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ======================================================
+     SEARCH
+====================================================== -->
+
+<section class="search-area">
+
+    <div class="search-box">
+
+        <input
+            id="locationSearch"
+            type="text"
+            placeholder="🔎 Search any city, district, town or village..."
+            autocomplete="off"
+        >
+
+        <button
+            class="search-btn"
+            onclick="searchLocation()"
+        >
+            SEARCH
+        </button>
+
+    </div>
+
+
+    <div
+        id="searchSuggestions"
+        class="search-suggestions"
+        style="display:none"
+    ></div>
+
+
+    <div
+        id="searchResults"
+        class="search-results"
+    ></div>
+
+</section>
+
+
+<!-- ======================================================
+     DASHBOARD
+====================================================== -->
+
+<section
+    class="dashboard"
+    id="weather"
+>
+
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+    <div class="sidebar-header">
+
+        <div
+            class="location-name"
+            id="locationName"
+        >
+            Bhubaneswar
+        </div>
+
+        <div
+            class="location-meta"
+            id="locationMeta"
+        >
+            Khordha, India
+        </div>
+
+    </div>
+
+
+    <div class="risk-card">
+
+        <div
+            class="risk-ring"
+            id="riskRing"
+            style="--risk-angle:32deg"
+        >
+
+            <div
+                class="risk-number"
+                id="riskNumber"
+            >
+                --%
+            </div>
+
+        </div>
+
+
+        <div class="risk-label">
+            ESTIMATED FLOOD PROBABILITY
+        </div>
+
+
+        <div
+            id="riskStatus"
+            class="risk-status normal"
+        >
+            🟢 NORMAL
+        </div>
+
+    </div>
+
+
+    <div class="source-intelligence" style="margin:14px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;">
+        <div class="metric">
+            <div class="metric-label">OBSERVATION</div>
+            <div class="metric-value" id="aiObsData">LIVE</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">SATELLITE 24H</div>
+            <div class="metric-value" id="aiSatData">-- mm</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">SATELLITE 30D</div>
+            <div class="metric-value" id="aiSat30d">-- mm</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">NWP 24H</div>
+            <div class="metric-value" id="aiNwpData">-- mm</div>
+        </div>
+    </div>
+
+
+    <div class="metrics">
+
+        <div class="metric">
+
+            <div class="metric-label">
+                CURRENT RAIN
+            </div>
+
+            <div
+                class="metric-value"
+                id="currentRain"
+            >
+                -- mm
+            </div>
+
+        </div>
+
+
+        <div class="metric">
+
+            <div class="metric-label">
+                HUMIDITY
+            </div>
+
+            <div
+                class="metric-value"
+                id="humidity"
+            >
+                --%
+            </div>
+
+        </div>
+
+
+        <div class="metric">
+
+            <div class="metric-label">
+                TEMPERATURE
+            </div>
+
+            <div
+                class="metric-value"
+                id="temperature"
+            >
+                --°C
+            </div>
+
+        </div>
+
+
+        <div class="metric">
+
+            <div class="metric-label">
+                WIND
+            </div>
+
+            <div
+                class="metric-value"
+                id="wind"
+            >
+                -- km/h
+            </div>
+
+        </div>
+
+
+        <div class="metric">
+
+            <div class="metric-label">
+                WIND DIRECTION
+            </div>
+
+            <div
+                class="metric-value"
+                id="windDirection"
+            >
+                --
+            </div>
+
+        </div>
+
+
+        <div class="metric">
+
+            <div class="metric-label">
+                CLOUD COVER
+            </div>
+
+            <div
+                class="metric-value"
+                id="cloudCover"
+            >
+                --%
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="directive">
+
+        <b>
+            Operational Directive
+        </b>
+
+        <br><br>
+
+        <span id="directive">
+            Monitoring live weather and flood conditions.
+        </span>
+
+    </div>
+
+</aside>
+
+
+<!-- MAP -->
+
+<div class="map-wrapper">
+
+    <div id="map"></div>
+
+
+    <div class="map-control">
+
+        <h3>
+            🛰️ ODISHA LIVE WEATHER RADAR
+        </h3>
+
+        <small>
+            LIVE PRECIPITATION • CLOUD • WIND MOVEMENT
+        </small>
+
+
+        <div class="map-weather-grid">
+
+            <div class="map-weather">
+
+                <span>
+                    WIND
+                </span>
+
+                <b id="mapWind">
+                    -- km/h
+                </b>
+
+            </div>
+
+
+            <div class="map-weather">
+
+                <span>
+                    DIRECTION
+                </span>
+
+                <b id="mapDirection">
+                    --
+                </b>
+
+            </div>
+
+
+            <div class="map-weather">
+
+                <span>
+                    RAIN
+                </span>
+
+                <b id="mapRain">
+                    -- mm
+                </b>
+
+            </div>
+
+
+            <div class="map-weather">
+
+                <span>
+                    UPDATED
+                </span>
+
+                <b id="mapUpdated">
+                    --
+                </b>
+
+            </div>
+
+        </div>
+
+
+        <!-- LIVE WIND INFORMATION -->
+
+        <div class="live-wind-panel">
+
+            <div class="live-wind-title">
+
+                <span class="live-dot"></span>
+
+                LIVE WIND FLOW
+
+            </div>
+
+
+            <div class="wind-main">
+
+                <div
+                    class="wind-speed-big"
+                    id="liveWindSpeed"
+                >
+                    -- km/h
+                </div>
+
+
+                <div
+                    class="wind-direction-big"
+                    id="liveWindMovement"
+                >
+                    -- → --
+                </div>
+
+            </div>
+
+
+            <div class="wind-details">
+
+                <div>
+
+                    <span>
+                        FROM
+                    </span>
+
+                    <b id="windFrom">
+                        --
+                    </b>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        TO
+                    </span>
+
+                    <b id="windTo">
+                        --
+                    </b>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        BEARING
+                    </span>
+
+                    <b id="windBearing">
+                        --°
+                    </b>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="layer-buttons">
+
+            <button
+                class="layer-btn active"
+                onclick="toggleRadar(this)"
+            >
+                🌧️ RADAR
+            </button>
+
+
+            <button
+                class="layer-btn active"
+                onclick="toggleWind(this)"
+            >
+                💨 WIND
+            </button>
+
+
+            <button
+                class="layer-btn active"
+                onclick="toggleCloud(this)"
+            >
+                ☁️ CLOUD
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     LIVE WEATHER
+====================================================== -->
+
+<section class="section">
+
+    <div class="section-title">
+
+        <small>
+            REAL-TIME CONDITIONS
+        </small>
+
+        <h2>
+            Live Weather
+        </h2>
+
+        <p>
+            Current atmospheric conditions for the selected location.
+        </p>
+
+    </div>
+
+
+    <div class="live-grid">
+
+        <div class="live-card">
+
+            <div class="live-icon">
+                🌡️
+            </div>
+
+            <span>
+                TEMPERATURE
+            </span>
+
+            <b id="liveTemp">
+                --°C
+            </b>
+
+        </div>
+
+
+        <div class="live-card">
+
+            <div class="live-icon">
+                💧
+            </div>
+
+            <span>
+                HUMIDITY
+            </span>
+
+            <b id="liveHumidity">
+                --%
+            </b>
+
+        </div>
+
+
+        <div class="live-card">
+
+            <div class="live-icon">
+                🌧️
+            </div>
+
+            <span>
+                PRECIPITATION
+            </span>
+
+            <b id="liveRain">
+                -- mm
+            </b>
+
+        </div>
+
+
+        <div class="live-card">
+
+            <div class="live-icon">
+                ☁️
+            </div>
+
+            <span>
+                CLOUD COVER
+            </span>
+
+            <b id="liveCloud">
+                --%
+            </b>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ======================================================
+     24 HOUR FORECAST
+====================================================== -->
+
+<section class="section">
+
+    <div class="section-title">
+
+        <small>
+            HOURLY INTELLIGENCE
+        </small>
+
+        <h2>
+            24-Hour Weather Forecast
+        </h2>
+
+        <p>
+            Rainfall, temperature, humidity and wind conditions
+            expected during the next 24 hours.
+        </p>
+
+    </div>
+
+
+    <div class="chart-grid">
+
+        <div class="chart-card">
+
+            <h3>
+                🌧️ Hourly Precipitation
+            </h3>
+
+            <p>
+                Expected precipitation in millimetres
+            </p>
+
+            <div class="chart-container">
+                <canvas id="rainChart"></canvas>
+            </div>
+
+        </div>
+
+
+        <div class="chart-card">
+
+            <h3>
+                🌡️ Temperature
+            </h3>
+
+            <p>
+                24-hour temperature trend
+            </p>
+
+            <div class="chart-container">
+                <canvas id="temperatureChart"></canvas>
+            </div>
+
+        </div>
+
+
+        <div class="chart-card">
+
+            <h3>
+                💧 Humidity
+            </h3>
+
+            <p>
+                Relative humidity trend
+            </p>
+
+            <div class="chart-container">
+                <canvas id="humidityChart"></canvas>
+            </div>
+
+        </div>
+
+
+        <div class="chart-card">
+
+            <h3>
+                💨 Wind Speed
+            </h3>
+
+            <p>
+                Wind speed and directional movement
+            </p>
+
+            <div class="chart-container">
+                <canvas id="windChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ======================================================
+     7 DAY FORECAST
+====================================================== -->
+
+<section
+    class="section"
+    id="forecast"
+>
+
+    <div class="section-title">
+
+        <small>
+            EXTENDED OUTLOOK
+        </small>
+
+        <h2>
+            7-Day Weather Forecast
+        </h2>
+
+        <p>
+            Extended weather outlook for planning and disaster preparedness.
+        </p>
+
+    </div>
+
+
+    <div
+        class="forecast-grid"
+        id="forecastGrid"
+    >
+
+        <div class="forecast-card">
+            Loading...
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ======================================================
+     ABOUT
+====================================================== -->
+
+<section
+    class="section"
+    id="about"
+>
+
+    <div class="section-title">
+
+        <small>
+            ABOUT THE PLATFORM
+        </small>
+
+        <h2>
+            Odisha Flood EWS
+        </h2>
+
+        <p>
+            A dynamic geospatial early-warning interface for monitoring
+            weather and flood-related indicators.
+        </p>
+
+    </div>
+
+
+    <div class="info-grid">
+
+        <div class="info-card">
+
+            <div class="icon">
+                🌊
+            </div>
+
+            <h3>
+                Flood Intelligence
+            </h3>
+
+            <p>
+                Combines live weather information with your FastAPI
+                flood-risk engine to display an estimated flood probability
+                and operational risk level.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <div class="icon">
+                🛰️
+            </div>
+
+            <h3>
+                Geospatial Monitoring
+            </h3>
+
+            <p>
+                Interactive mapping allows users to search locations,
+                inspect weather conditions and visualize precipitation,
+                wind and cloud movement.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <div class="icon">
+                📊
+            </div>
+
+            <h3>
+                Forecast Analytics
+            </h3>
+
+            <p>
+                Hourly and seven-day forecasts provide a broader picture
+                of upcoming atmospheric conditions.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ======================================================
+     CONTRIBUTION
+====================================================== -->
+
+<section
+    class="section"
+    id="contribution"
+>
+
+    <div class="section-title">
+
+        <small>
+            COMMUNITY
+        </small>
+
+        <h2>
+            Contribution
+        </h2>
+
+        <p>
+            Community observations can improve local situational awareness.
+        </p>
+
+    </div>
+
+
+    <div class="info-grid">
+
+        <div class="info-card">
+
+            <div class="icon">
+                📸
+            </div>
+
+            <h3>
+                Report Local Flooding
+            </h3>
+
+            <p>
+                Share verified observations of waterlogging, flooding,
+                blocked roads or extreme rainfall with responsible
+                local authorities.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <div class="icon">
+                📍
+            </div>
+
+            <h3>
+                Verify Location
+            </h3>
+
+            <p>
+                Always confirm the location and timestamp of a report
+                before using it for emergency decisions.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <div class="icon">
+                🚨
+            </div>
+
+            <h3>
+                Emergency Information
+            </h3>
+
+            <p>
+                This dashboard is an informational monitoring interface.
+                Follow official government and emergency-management
+                instructions during dangerous weather.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ======================================================
+     LIVE PRESENTATION + DATASETS
+====================================================== -->
+<section class="section" id="ewsPresentationSection">
+  <div class="ews-presenter">
+    <div class="ews-presenter-grid">
+      <div>
+        <div class="section-title">
+          <small>SIH 2026 • LIVE DEMO</small>
+          <h2 data-ews-lang-en="Live Presentation — No PPT Required" data-ews-lang-hi="लाइव प्रस्तुति — PPT की आवश्यकता नहीं" data-ews-lang-or="ଲାଇଭ୍ ପ୍ରସ୍ତୁତି — PPT ଦରକାର ନାହିଁ">Live Presentation — No PPT Required</h2>
+          <p>A browser-native presentation view for judges: architecture, data sources, live model status and current metrics are all visible on the same page.</p>
+        </div>
+        <button type="button" id="ewsPresenterBtn">🖥️ Presenter Mode</button>
+      </div>
+      <div>
+        <b>Project statement</b>
+        <p>AI/ML-Based Integrated heavy rainfall Early Warning and Inundation Prediction System using Satellite, Radar, observational Weather and numerical weather prediction model data.</p>
+        <ul>
+          <li>Live observations + NWP-compatible forecast</li>
+          <li>NASA GPM IMERG satellite precipitation</li>
+          <li>RainViewer radar visualization/metadata</li>
+          <li>17-feature prototype ML inference engine</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ews-demo-strip">
+      <div class="ews-demo-card"><span>Observation</span><b id="ewsLive_obs">—</b></div>
+      <div class="ews-demo-card"><span>Satellite</span><b id="ewsLive_satellite">—</b></div>
+      <div class="ews-demo-card"><span>Radar</span><b id="ewsLive_radar">—</b></div>
+      <div class="ews-demo-card"><span>NWP</span><b id="ewsLive_nwp">—</b></div>
+      <div class="ews-demo-card"><span>ML Engine</span><b id="ewsLive_ml">—</b></div>
+    </div>
+    <div class="ews-demo-strip">
+      <div class="ews-demo-card"><span>Satellite 24h</span><b id="ewsSat24">—</b></div>
+      <div class="ews-demo-card"><span>Satellite 30d</span><b id="ewsSat30">—</b></div>
+      <div class="ews-demo-card"><span>IMERG Files Read</span><b id="ewsFiles">—</b></div>
+      <div class="ews-demo-card"><span>Model</span><b id="ewsModel">—</b></div>
+      <div class="ews-demo-card"><span>Updated</span><b id="ewsUpdated">—</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     SOURCES & DATASETS
+====================================================== -->
+<section class="section" id="ewsSourcesDatasets">
+  <div class="section-title"><small>DATA TRANSPARENCY</small><h2>Sources & Datasets</h2><p>Exact source role, format and use in this prototype.</p></div>
+  <div class="info-card">
+    <table class="ews-dataset-table">
+      <thead><tr><th>Source / Dataset</th><th>What it provides</th><th>How used</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><b>Open-Meteo</b></td><td>Current observations and hourly/daily forecast</td><td>Observation + NWP-compatible weather features</td><td>LIVE</td></tr>
+        <tr><td><b>NASA GPM IMERG</b></td><td>Daily satellite precipitation, 0.1° grid</td><td>24h/3d/7d/15d/30d antecedent rainfall features</td><td id="datasetSatStatus">LIVE</td></tr>
+        <tr><td><b>RainViewer</b></td><td>Radar timeline/tiles</td><td>Live radar map and metadata; numeric radar rainfall is not fabricated</td><td id="datasetRadarStatus">LIVE</td></tr>
+        <tr><td><b>OpenStreetMap / Leaflet</b></td><td>Base map and geospatial context</td><td>Location selection and risk visualization</td><td>LIVE</td></tr>
+        <tr><td><b>17-feature Random Forest</b></td><td>Prototype ML inference artifact</td><td>Flood probability and hazard classification</td><td id="datasetMlStatus">READY</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ======================================================
+     SOURCES
+====================================================== -->
+
+<section
+    class="section"
+    id="sources"
+>
+
+    <div class="section-title">
+
+        <small>
+            DATA TRANSPARENCY
+        </small>
+
+        <h2>
+            Sources Used
+        </h2>
+
+        <p>
+            External services used by this frontend.
+        </p>
+
+    </div>
+
+
+    <div class="info-card">
+
+        <div class="source-list">
+
+            <div class="source-item">
+                🗺️ <b>OpenStreetMap / Leaflet</b>
+                — interactive geographic mapping.
+            </div>
+
+            <div class="source-item">
+                🌦️ <b>Open-Meteo</b>
+                — weather, hourly forecast and seven-day forecast.
+            </div>
+
+            <div class="source-item">
+                🔎 <b>Open-Meteo Geocoding</b>
+                — custom location search.
+            </div>
+
+            <div class="source-item">
+                🌧️ <b>RainViewer</b>
+                — radar imagery when the public radar endpoint is available.
+            </div>
+
+            <div class="source-item">
+                🧠 <b>FastAPI Flood Engine</b>
+                — project-specific flood-risk calculation.
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer class="footer">
+
+    ODISHA FLOOD EWS • LIVE DISASTER INTELLIGENCE SYSTEM
+
+    <br><br>
+
+    Weather data should be interpreted together with official warnings
+    and emergency-management information.
+
+</footer>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+<script>
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+const BACKEND_URL =
+    window.location.protocol === "file:"
+        ? "http://127.0.0.1:8000"
+        : window.location.origin;
+
+
+const DEFAULT_LOCATION = {
+
+    latitude:20.2961,
+
+    longitude:85.8245,
+
+    name:"Bhubaneswar",
+
+    district:"Khordha",
+
+    state:"Odisha",
+
+    country:"India"
+
+};
+
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+
+let selectedLocation =
+    DEFAULT_LOCATION;
+
+let currentWeather =
+    null;
+
+let radarLayer =
+    null;
+
+let radarVisible =
+    true;
+
+let windVisible =
+    true;
+
+let cloudVisible =
+    true;
+
+let charts =
+    {};
+
+let movementParticles =
+    [];
+
+let windAnimationFrame =
+    null;
+
+let lastWindAnimation =
+    0;
+
+let searchTimer =
+    null;
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+const map =
+    L.map(
+        "map",
+        {
+            zoomControl:true
+        }
+    ).setView(
+        [
+            DEFAULT_LOCATION.latitude,
+            DEFAULT_LOCATION.longitude
+        ],
+        8
+    );
+
+
+const satellite =
+    L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+            maxZoom:18,
+
+            attribution:
+                "Tiles © Esri"
+        }
+    ).addTo(map);
+
+
+const streets =
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom:19,
+
+            attribution:
+                "&copy; OpenStreetMap contributors"
+        }
+    );
+
+
+const riskLayer =
+    L.layerGroup()
+        .addTo(map);
+
+
+const heatLayer =
+    L.layerGroup()
+        .addTo(map);
+
+
+const markerLayer =
+    L.layerGroup()
+        .addTo(map);
+
+
+const windLayer =
+    L.layerGroup()
+        .addTo(map);
+
+
+const cloudLayer =
+    L.layerGroup()
+        .addTo(map);
+
+
+/* =========================================================
+   SEARCH INPUT
+========================================================= */
+
+const searchInput =
+    document.getElementById(
+        "locationSearch"
+    );
+
+
+searchInput.addEventListener(
+    "input",
+    function(){
+
+        clearTimeout(
+            searchTimer
+        );
+
+        const query =
+            this.value.trim();
+
+
+        if(query.length < 2){
+
+            hideSearchSuggestions();
+
+            return;
+
+        }
+
+
+        searchTimer =
+            setTimeout(
+                () =>
+                    getSearchSuggestions(
+                        query
+                    ),
+                350
+            );
+
+    }
+);
+
+
+searchInput.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key === "Enter"
+        ){
+
+            searchLocation();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SEARCH RECOMMENDATIONS
+========================================================= */
+
+async function getSearchSuggestions(
+    query
+){
+
+    const box =
+        document.getElementById(
+            "searchSuggestions"
+        );
+
+
+    box.style.display =
+        "block";
+
+
+    box.innerHTML =
+        `
+        <div class="search-loading">
+            🔎 Finding locations...
+        </div>
+        `;
+
+
+    try{
+
+        const url =
+            "https://geocoding-api.open-meteo.com/v1/search" +
+
+            "?name=" +
+            encodeURIComponent(query) +
+
+            "&count=7" +
+
+            "&language=en" +
+
+            "&format=json";
+
+
+        const response =
+            await fetch(url);
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Search failed"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if(
+            !data.results ||
+            !data.results.length
+        ){
+
+            box.innerHTML =
+                `
+                <div class="search-loading">
+                    ❌ No matching location found
+                </div>
+                `;
+
+            return;
+
+        }
+
+
+        box.innerHTML =
+            "";
+
+
+        data.results.forEach(
+            result => {
+
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                item.className =
+                    "suggestion";
+
+
+                item.innerHTML = `
+
+                    <div class="suggestion-icon">
+                        📍
+                    </div>
+
+                    <div>
+
+                        <div class="suggestion-name">
+                            ${escapeHtml(
+                                result.name
+                            )}
+                        </div>
+
+                        <div class="suggestion-location">
+
+                            ${escapeHtml(
+                                result.admin2 ||
+                                result.admin1 ||
+                                ""
+                            )}
+
+                            ${
+                                result.country
+                                ? ", " +
+                                  escapeHtml(
+                                      result.country
+                                  )
+                                : ""
+                            }
+
+                        </div>
+
+                    </div>
+
+                `;
+
+
+                item.onclick =
+                    async () => {
+
+                        hideSearchSuggestions();
+
+
+                        searchInput.value =
+                            result.name;
+
+
+                        await loadLocation({
+
+                            latitude:
+                                result.latitude,
+
+                            longitude:
+                                result.longitude,
+
+                            name:
+                                result.name,
+
+                            district:
+                                result.admin2 ||
+                                result.admin1 ||
+                                "",
+
+                            state:
+                                result.admin1 ||
+                                "",
+
+                            country:
+                                result.country ||
+                                ""
+
+                        });
+
+                    };
+
+
+                box.appendChild(
+                    item
+                );
+
+            }
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        box.innerHTML =
+            `
+            <div class="search-loading">
+                ⚠️ Location search unavailable
+            </div>
+            `;
+
+    }
+
+}
+
+
+/* =========================================================
+   SEARCH BUTTON
+========================================================= */
+
+async function searchLocation(){
+
+    const query =
+        searchInput.value.trim();
+
+
+    if(!query){
+        return;
+    }
+
+
+    hideSearchSuggestions();
+
+
+    const resultBox =
+        document.getElementById(
+            "searchResults"
+        );
+
+
+    resultBox.style.display =
+        "block";
+
+
+    resultBox.innerHTML =
+        `
+        <div class="search-loading">
+            🔎 Searching location...
+        </div>
+        `;
+
+
+    try{
+
+        const url =
+            "https://geocoding-api.open-meteo.com/v1/search" +
+
+            "?name=" +
+            encodeURIComponent(query) +
+
+            "&count=8" +
+
+            "&language=en" +
+
+            "&format=json";
+
+
+        const response =
+            await fetch(url);
+
+
+        const data =
+            await response.json();
+
+
+        if(
+            !data.results ||
+            !data.results.length
+        ){
+
+            resultBox.innerHTML =
+                `
+                <div class="search-loading">
+                    ❌ Location not found
+                </div>
+                `;
+
+            return;
+
+        }
+
+
+        resultBox.innerHTML =
+            "";
+
+
+        data.results.forEach(
+            result => {
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                div.className =
+                    "search-result";
+
+
+                div.innerHTML = `
+
+                    <div class="suggestion-icon">
+                        📍
+                    </div>
+
+                    <div>
+
+                        <b>
+                            ${escapeHtml(
+                                result.name
+                            )}
+                        </b>
+
+                        <small>
+                            ${escapeHtml(
+                                result.admin2 ||
+                                result.admin1 ||
+                                ""
+                            )}
+
+                            ${
+                                result.country
+                                ? ", " +
+                                  escapeHtml(
+                                      result.country
+                                  )
+                                : ""
+                            }
+                        </small>
+
+                    </div>
+
+                `;
+
+
+                div.onclick =
+                    async () => {
+
+                        resultBox.style.display =
+                            "none";
+
+
+                        await loadLocation({
+
+                            latitude:
+                                result.latitude,
+
+                            longitude:
+                                result.longitude,
+
+                            name:
+                                result.name,
+
+                            district:
+                                result.admin2 ||
+                                result.admin1 ||
+                                "",
+
+                            state:
+                                result.admin1 ||
+                                "",
+
+                            country:
+                                result.country ||
+                                ""
+
+                        });
+
+                    };
+
+
+                resultBox.appendChild(
+                    div
+                );
+
+            }
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        resultBox.innerHTML =
+            `
+            <div class="search-loading">
+                ❌ Search service unavailable
+            </div>
+            `;
+
+    }
+
+}
+
+
+/* =========================================================
+   HIDE SEARCH
+========================================================= */
+
+function hideSearchSuggestions(){
+
+    const box =
+        document.getElementById(
+            "searchSuggestions"
+        );
+
+
+    box.style.display =
+        "none";
+
+}
+
+
+document.addEventListener(
+    "click",
+    function(event){
+
+        if(
+            !event.target.closest(
+                ".search-box"
+            ) &&
+            !event.target.closest(
+                ".search-suggestions"
+            )
+        ){
+
+            hideSearchSuggestions();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   LOAD LOCATION
+========================================================= */
+
+async function loadLocation(
+    location
+){
+
+    selectedLocation =
+        location;
+
+
+    document.getElementById(
+        "locationName"
+    ).innerText =
+        location.name;
+
+
+    document.getElementById(
+        "locationMeta"
+    ).innerText =
+        `${location.district || location.state || ""}
+         ${location.country ? ", " + location.country : ""}`;
+
+
+    document.getElementById(
+        "systemLocation"
+    ).innerText =
+        location.name;
+
+
+    map.flyTo(
+        [
+            location.latitude,
+            location.longitude
+        ],
+        11,
+        {
+            duration:1.2
+        }
+    );
+
+
+    await loadWeather(
+        location.latitude,
+        location.longitude
+    );
+
+
+    await requestFloodRisk(
+        location.latitude,
+        location.longitude
+    );
+
+}
+
+
+/* =========================================================
+   WEATHER API
+========================================================= */
+
+async function loadWeather(
+    latitude,
+    longitude
+){
+
+    const status =
+        document.getElementById(
+            "weatherStatus"
+        );
+
+
+    status.innerText =
+        "LOADING";
+
+
+    try{
+
+        const url =
+            "https://api.open-meteo.com/v1/forecast" +
+
+            "?latitude=" +
+            latitude +
+
+            "&longitude=" +
+            longitude +
+
+            "&current=" +
+
+            [
+                "temperature_2m",
+                "relative_humidity_2m",
+                "precipitation",
+                "rain",
+                "cloud_cover",
+                "wind_speed_10m",
+                "wind_direction_10m",
+                "weather_code"
+            ].join(",") +
+
+            "&hourly=" +
+
+            [
+                "temperature_2m",
+                "relative_humidity_2m",
+                "precipitation",
+                "rain",
+                "precipitation_probability",
+                "cloud_cover",
+                "wind_speed_10m",
+                "wind_direction_10m",
+                "weather_code"
+            ].join(",") +
+
+            "&daily=" +
+
+            [
+                "weather_code",
+                "temperature_2m_max",
+                "temperature_2m_min",
+                "precipitation_sum",
+                "precipitation_probability_max",
+                "wind_speed_10m_max"
+            ].join(",") +
+
+            "&forecast_days=7" +
+
+            "&timezone=auto";
+
+
+        const response =
+            await fetch(url);
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Weather API error"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        currentWeather =
+            data.current;
+
+
+        window.weatherData =
+            data;
+
+
+        renderCurrentWeather(
+            data
+        );
+
+
+        renderHourlyForecast(
+            data
+        );
+
+
+        renderSevenDayForecast(
+            data
+        );
+
+
+        drawMovementArrows();
+
+
+        status.innerText =
+            "LIVE";
+
+
+        document.getElementById(
+            "systemStatus"
+        ).innerText =
+            "LIVE WEATHER RECEIVED";
+
+
+        document.getElementById(
+            "lastUpdate"
+        ).innerText =
+            new Date()
+                .toLocaleTimeString();
+
+    }
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        status.innerText =
+            "ERROR";
+
+
+        document.getElementById(
+            "systemStatus"
+        ).innerText =
+            "WEATHER CONNECTION ERROR";
+
+    }
+
+}
+
+
+/* =========================================================
+   CURRENT WEATHER
+========================================================= */
+
+function renderCurrentWeather(
+    data
+){
+
+    const current =
+        data.current;
+
+
+    const temp =
+        Number(
+            current.temperature_2m
+        );
+
+
+    const humidity =
+        Number(
+            current.relative_humidity_2m
+        );
+
+
+    const rain =
+        Number(
+            current.precipitation || 0
+        );
+
+
+    const wind =
+        Number(
+            current.wind_speed_10m
+        );
+
+
+    const direction =
+        Number(
+            current.wind_direction_10m
+        );
+
+
+    const cloud =
+        Number(
+            current.cloud_cover
+        );
+
+
+    document.getElementById(
+        "temperature"
+    ).innerText =
+        `${temp.toFixed(1)}°C`;
+
+
+    document.getElementById(
+        "humidity"
+    ).innerText =
+        `${humidity}%`;
+
+
+    document.getElementById(
+        "currentRain"
+    ).innerText =
+        `${rain.toFixed(2)} mm`;
+
+
+    document.getElementById(
+        "wind"
+    ).innerText =
+        `${wind.toFixed(1)} km/h`;
+
+
+    document.getElementById(
+        "windDirection"
+    ).innerText =
+        `${degreesToDirection(direction)}
+        (${Math.round(direction)}°)`;
+
+
+    document.getElementById(
+        "cloudCover"
+    ).innerText =
+        `${cloud}%`;
+
+
+    document.getElementById(
+        "liveTemp"
+    ).innerText =
+        `${temp.toFixed(1)}°C`;
+
+
+    document.getElementById(
+        "liveHumidity"
+    ).innerText =
+        `${humidity}%`;
+
+
+    document.getElementById(
+        "liveRain"
+    ).innerText =
+        `${rain.toFixed(2)} mm`;
+
+
+    document.getElementById(
+        "liveCloud"
+    ).innerText =
+        `${cloud}%`;
+
+
+    document.getElementById(
+        "mapWind"
+    ).innerText =
+        `${wind.toFixed(1)} km/h`;
+
+
+    document.getElementById(
+        "mapDirection"
+    ).innerText =
+        degreesToDirection(direction);
+
+
+    document.getElementById(
+        "mapRain"
+    ).innerText =
+        `${rain.toFixed(2)} mm`;
+
+
+    document.getElementById(
+        "mapUpdated"
+    ).innerText =
+        new Date()
+            .toLocaleTimeString();
+
+
+    updateWindInformation();
+
+}
+
+
+/* =========================================================
+   HOURLY FORECAST
+========================================================= */
+
+function renderHourlyForecast(
+    data
+){
+
+    const hourly =
+        data.hourly;
+
+
+    const now =
+        new Date();
+
+
+    let startIndex =
+        0;
+
+
+    for(
+        let i=0;
+        i<hourly.time.length;
+        i++
+    ){
+
+        const time =
+            new Date(
+                hourly.time[i]
+            );
+
+
+        if(time >= now){
+
+            startIndex =
+                i;
+
+            break;
+
+        }
+
+    }
+
+
+    const count =
+        Math.min(
+            24,
+            hourly.time.length -
+            startIndex
+        );
+
+
+    const labels = [];
+    const rain = [];
+    const temperature = [];
+    const humidity = [];
+    const wind = [];
+
+
+    for(
+        let i=startIndex;
+        i<startIndex+count;
+        i++
+    ){
+
+        labels.push(
+            new Date(
+                hourly.time[i]
+            ).toLocaleTimeString(
+                [],
+                {
+                    hour:"2-digit"
+                }
+            )
+        );
+
+
+        rain.push(
+            Number(
+                hourly.precipitation[i] || 0
+            )
+        );
+
+
+        temperature.push(
+            Number(
+                hourly.temperature_2m[i]
+            )
+        );
+
+
+        humidity.push(
+            Number(
+                hourly.relative_humidity_2m[i]
+            )
+        );
+
+
+        wind.push(
+            Number(
+                hourly.wind_speed_10m[i]
+            )
+        );
+
+    }
+
+
+    createChart(
+        "rainChart",
+        labels,
+        rain,
+        "Precipitation (mm)"
+    );
+
+
+    createChart(
+        "temperatureChart",
+        labels,
+        temperature,
+        "Temperature (°C)"
+    );
+
+
+    createChart(
+        "humidityChart",
+        labels,
+        humidity,
+        "Humidity (%)"
+    );
+
+
+    createChart(
+        "windChart",
+        labels,
+        wind,
+        "Wind (km/h)"
+    );
+
+}
+
+
+/* =========================================================
+   CHART GENERATOR
+========================================================= */
+
+function createChart(
+    id,
+    labels,
+    values,
+    label
+){
+
+    if(charts[id]){
+
+        charts[id].destroy();
+
+    }
+
+
+    const ctx =
+        document.getElementById(id);
+
+
+    charts[id] =
+        new Chart(
+            ctx,
+            {
+
+                type:"line",
+
+                data:{
+
+                    labels:labels,
+
+                    datasets:[
+
+                        {
+
+                            label:label,
+
+                            data:values,
+
+                            borderWidth:2,
+
+                            pointRadius:2,
+
+                            tension:.35,
+
+                            fill:true,
+
+                            backgroundColor:
+                                "rgba(6,182,212,.08)",
+
+                            borderColor:
+                                "#22d3ee"
+
+                        }
+
+                    ]
+
+                },
+
+                options:{
+
+                    responsive:true,
+
+                    maintainAspectRatio:false,
+
+                    interaction:{
+
+                        intersect:false,
+
+                        mode:"index"
+
+                    },
+
+                    plugins:{
+
+                        legend:{
+
+                            labels:{
+
+                                color:"#94a3b8",
+
+                                font:{
+                                    size:9
+                                }
+
+                            }
+
+                        }
+
+                    },
+
+                    scales:{
+
+                        x:{
+
+                            ticks:{
+
+                                color:"#64748b",
+
+                                maxTicksLimit:8
+
+                            },
+
+                            grid:{
+
+                                color:
+                                    "rgba(148,163,184,.06)"
+
+                            }
+
+                        },
+
+                        y:{
+
+                            beginAtZero:false,
+
+                            ticks:{
+
+                                color:"#64748b"
+
+                            },
+
+                            grid:{
+
+                                color:
+                                    "rgba(148,163,184,.06)"
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   7 DAY FORECAST
+========================================================= */
+
+function renderSevenDayForecast(
+    data
+){
+
+    const daily =
+        data.daily;
+
+
+    const grid =
+        document.getElementById(
+            "forecastGrid"
+        );
+
+
+    grid.innerHTML =
+        "";
+
+
+    for(
+        let i=0;
+        i<7;
+        i++
+    ){
+
+        const date =
+            new Date(
+                daily.time[i]
+            );
+
+
+        const day =
+            date.toLocaleDateString(
+                [],
+                {
+                    weekday:"short"
+                }
+            );
+
+
+        const weatherIcon =
+            weatherCodeIcon(
+                daily.weather_code[i]
+            );
+
+
+        const card =
+            document.createElement(
+                "div"
+            );
+
+
+        card.className =
+            "forecast-card";
+
+
+        card.innerHTML = `
+
+            <div class="forecast-day">
+                ${day}
+            </div>
+
+            <div class="forecast-icon">
+                ${weatherIcon}
+            </div>
+
+            <div class="forecast-temp">
+
+                ${Math.round(
+                    daily.temperature_2m_max[i]
+                )}°
+
+                /
+
+                ${Math.round(
+                    daily.temperature_2m_min[i]
+                )}°
+
+            </div>
+
+            <div class="forecast-rain">
+
+                🌧️
+
+                ${
+                    daily
+                    .precipitation_probability_max[i]
+                    || 0
+                }%
+
+            </div>
+
+            <div class="forecast-rain">
+
+                ${Number(
+                    daily.precipitation_sum[i]
+                    || 0
+                ).toFixed(1)}
+
+                mm
+
+            </div>
+
+        `;
+
+
+        grid.appendChild(
+            card
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   FLOOD RISK
+========================================================= */
+
+async function requestFloodRisk(
+    latitude,
+    longitude
+){
+
+    document.getElementById(
+        "floodStatus"
+    ).innerText =
+        "LOADING";
+
+
+    try{
+
+        const response =
+            await fetch(
+                BACKEND_URL +
+                "/api/v1/disaster/predict-live-location",
+                {
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:JSON.stringify({
+
+                        latitude:
+                            latitude,
+
+                        longitude:
+                            longitude
+
+                    })
+
+                }
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Flood backend returned HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        renderRiskResult(
+            data
+        );
+
+
+        document.getElementById(
+            "floodStatus"
+        ).innerText =
+            "LIVE";
+
+    }
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        document.getElementById(
+            "floodStatus"
+        ).innerText =
+            "OFFLINE";
+
+
+        document.getElementById(
+            "directive"
+        ).innerText =
+            "Live weather is available, but the flood-risk backend is currently unavailable.";
+
+    }
+
+}
+
+
+/* =========================================================
+   FLOOD RESULT
+========================================================= */
+
+function renderRiskResult(
+    data
+){
+
+    const analytics =
+        data.analytics || {};
+
+
+    const spatial =
+        data.spatial_parameters || {};
+
+
+    const probability =
+        Number(
+            analytics.flood_probability_pct || 0
+        );
+
+
+    const tier =
+        analytics.hazard_tier ||
+        "NORMAL";
+
+
+    const riskClass =
+        getRiskClass(
+            tier
+        );
+
+
+    document.getElementById(
+        "riskNumber"
+    ).innerText =
+        probability.toFixed(1) +
+        "%";
+
+
+    const angle =
+        Math.max(
+            4,
+            Math.min(
+                360,
+                probability * 3.6
+            )
+        );
+
+
+    document.getElementById(
+        "riskRing"
+    ).style.setProperty(
+        "--risk-angle",
+        angle + "deg"
+    );
+
+
+    const status =
+        document.getElementById(
+            "riskStatus"
+        );
+
+
+    status.className =
+        "risk-status " +
+        riskClass;
+
+
+    status.innerText =
+        tier === "CRITICAL"
+            ? "🔴 CRITICAL"
+            : tier === "HIGH RISK"
+                ? "🟠 HIGH RISK"
+                : "🟢 NORMAL";
+
+
+    if(
+        spatial.rainfall_6h_mm != null
+    ){
+
+        document.getElementById(
+            "directive"
+        ).innerText =
+            analytics.operational_directive ||
+            "Flood-risk engine returned live data.";
+
+    }
+
+
+    const satellite = data.satellite || data.sources?.satellite || {};
+    const nwp = data.nwp || data.sources?.nwp || {};
+
+    const sat24 =
+        Number(
+            satellite.rainfall_24h_mm ??
+            data.prediction?.satellite_rainfall_24h_mm ??
+            data.ai_prediction?.satellite_rainfall_24h_mm ??
+            0
+        );
+
+    const sat30 =
+        Number(
+            satellite.rainfall_30d_mm ??
+            data.prediction?.satellite_rainfall_30d_mm ??
+            data.ai_prediction?.satellite_rainfall_30d_mm ??
+            0
+        );
+
+    const nwp24 =
+        Number(
+            nwp.rainfall_24h_mm ??
+            data.prediction?.nwp_rain_24h_mm ??
+            data.ai_prediction?.nwp_rain_24h_mm ??
+            0
+        );
+
+    if(document.getElementById("aiSatData"))
+        document.getElementById("aiSatData").innerText =
+            sat24 > 0 ? `${sat24.toFixed(1)} mm` : "CONNECTED";
+
+    if(document.getElementById("aiSat30d"))
+        document.getElementById("aiSat30d").innerText =
+            sat30 > 0 ? `${sat30.toFixed(1)} mm` : "CONNECTED";
+
+    if(document.getElementById("aiNwpData"))
+        document.getElementById("aiNwpData").innerText =
+            nwp24 > 0 ? `${nwp24.toFixed(1)} mm` : "LIVE";
+
+    if(document.getElementById("aiObsData"))
+        document.getElementById("aiObsData").innerText = "LIVE";
+
+    updateRiskMap(
+        selectedLocation.latitude,
+        selectedLocation.longitude,
+        probability,
+        tier
+    );
+
+}
+
+
+/* =========================================================
+   RISK MAP
+========================================================= */
+
+function updateRiskMap(
+    latitude,
+    longitude,
+    probability,
+    tier
+){
+
+    riskLayer.clearLayers();
+    heatLayer.clearLayers();
+    markerLayer.clearLayers();
+
+    const intensity = Math.max(0, Math.min(100, Number(probability) || 0));
+
+    let color =
+        "#22c55e";
+
+    if(tier === "HIGH RISK"){
+        color =
+            "#f97316";
+    }
+
+    if(tier === "CRITICAL"){
+        color =
+            "#ef4444";
+    }
+
+    /* Local risk heatmap visualization.
+       This visualizes the modelled risk intensity around the selected
+       point; it is not a claim of a district-wide hydrodynamic model. */
+    const heatRadii = [
+        1800, 3200, 4800, 6500, 8500, 11000
+    ];
+
+    heatRadii.forEach((radius, index) => {
+        const decay = Math.max(0.03, (intensity / 100) * (0.30 - index * 0.035));
+        L.circle(
+            [latitude, longitude],
+            {
+                radius,
+                color: color,
+                fillColor: color,
+                fillOpacity: decay,
+                opacity: 0.18,
+                weight: 1
+            }
+        ).addTo(heatLayer);
+    });
+
+    const radius =
+        5000 +
+        intensity * 200;
+
+    L.circle(
+        [latitude, longitude],
+        {
+            radius:radius,
+            color:color,
+            fillColor:color,
+            fillOpacity:.14,
+            weight:3
+        }
+    )
+    .bindPopup(`
+        <b>Odisha Flood EWS</b>
+        <br><br>
+        Flood Probability: <b>${intensity.toFixed(1)}%</b>
+        <br>
+        Risk: <b>${escapeHtml(tier)}</b>
+    `)
+    .addTo(riskLayer);
+
+    L.marker(
+        [latitude, longitude]
+    )
+    .bindPopup(`
+        <b>${escapeHtml(selectedLocation.name)}</b>
+        <br>
+        AI live monitoring location
+    `)
+    .addTo(markerLayer);
+}
+
+
+
+/* =========================================================
+   GPS
+========================================================= */
+
+function getLiveRisk(){
+
+    if(
+        !navigator.geolocation
+    ){
+
+        alert(
+            "Geolocation is not supported by this browser."
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "systemStatus"
+    ).innerText =
+        "REQUESTING GPS...";
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        async position => {
+
+            const latitude =
+                position.coords.latitude;
+
+
+            const longitude =
+                position.coords.longitude;
+
+
+            try{
+
+                const response =
+                    await fetch(
+
+                        "https://geocoding-api.open-meteo.com/v1/reverse" +
+
+                        "?latitude=" +
+                        latitude +
+
+                        "&longitude=" +
+                        longitude +
+
+                        "&count=1" +
+
+                        "&language=en" +
+
+                        "&format=json"
+
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                const result =
+                    data.results &&
+                    data.results[0];
+
+
+                await loadLocation({
+
+                    latitude:
+                        latitude,
+
+                    longitude:
+                        longitude,
+
+                    name:
+                        result?.name ||
+                        "Live Location",
+
+                    district:
+                        result?.admin2 ||
+                        result?.admin1 ||
+                        "Odisha",
+
+                    state:
+                        result?.admin1 ||
+                        "Odisha",
+
+                    country:
+                        result?.country ||
+                        "India"
+
+                });
+
+            }
+            catch(error){
+
+                await loadLocation({
+
+                    latitude,
+                    longitude,
+
+                    name:
+                        "Live Location",
+
+                    district:
+                        "Odisha",
+
+                    state:
+                        "Odisha",
+
+                    country:
+                        "India"
+
+                });
+
+            }
+
+        },
+
+
+        error => {
+
+            console.error(
+                error
+            );
+
+
+            document.getElementById(
+                "systemStatus"
+            ).innerText =
+                "GPS PERMISSION FAILED";
+
+
+            alert(
+                "Please allow location access and try again."
+            );
+
+        },
+
+
+        {
+
+            enableHighAccuracy:true,
+
+            timeout:15000,
+
+            maximumAge:0
+
+        }
+
+    );
+
+}
+
+
+/* =========================================================
+   RADAR
+========================================================= */
+
+async function loadRadar(){
+
+    try{
+
+        const response =
+            await fetch(
+                "https://api.rainviewer.com/public/weather-maps.json"
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Radar metadata unavailable"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const frames = [
+
+            ...(data.radar?.past || []),
+
+            ...(data.radar?.nowcast || [])
+
+        ];
+
+
+        if(!frames.length){
+
+            console.warn(
+                "No RainViewer radar frames."
+            );
+
+            return;
+
+        }
+
+
+        const latest =
+            frames[
+                frames.length - 1
+            ];
+
+
+        const timestamp =
+            latest.time;
+
+
+        const host =
+            data.host ||
+            "https://tilecache.rainviewer.com";
+
+
+        const tileUrl =
+            host +
+            "/v2/radar/" +
+            timestamp +
+            "/256/{z}/{x}/{y}/2/1_1.png";
+
+
+        radarLayer =
+            L.tileLayer(
+                tileUrl,
+                {
+
+                    opacity:.42,
+
+                    maxNativeZoom:7,
+
+                    maxZoom:18,
+
+                    attribution:
+                        "Radar © RainViewer"
+
+                }
+            );
+
+
+        if(radarVisible){
+
+            radarLayer.addTo(
+                map
+            );
+
+        }
+
+    }
+    catch(error){
+
+        console.warn(
+            "Radar unavailable:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RADAR TOGGLE
+========================================================= */
+
+function toggleRadar(
+    button
+){
+
+    radarVisible =
+        !radarVisible;
+
+
+    button.classList.toggle(
+        "active",
+        radarVisible
+    );
+
+
+    if(!radarLayer){
+
+        loadRadar();
+
+        return;
+
+    }
+
+
+    if(radarVisible){
+
+        radarLayer.addTo(
+            map
+        );
+
+    }
+    else{
+
+        radarLayer.removeFrom(
+            map
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   WIND TOGGLE
+========================================================= */
+
+function toggleWind(
+    button
+){
+
+    windVisible =
+        !windVisible;
+
+
+    button.classList.toggle(
+        "active",
+        windVisible
+    );
+
+
+    if(windVisible){
+
+        windLayer.addTo(
+            map
+        );
+
+    }
+    else{
+
+        windLayer.removeFrom(
+            map
+        );
+
+    }
+
+
+    drawMovementArrows();
+
+}
+
+
+/* =========================================================
+   CLOUD TOGGLE
+========================================================= */
+
+function toggleCloud(
+    button
+){
+
+    cloudVisible =
+        !cloudVisible;
+
+
+    button.classList.toggle(
+        "active",
+        cloudVisible
+    );
+
+
+    if(cloudVisible){
+
+        cloudLayer.addTo(
+            map
+        );
+
+    }
+    else{
+
+        cloudLayer.removeFrom(
+            map
+        );
+
+    }
+
+
+    drawMovementArrows();
+
+}
+
+
+/* =========================================================
+   DRAW LIVE MOVEMENT
+========================================================= */
+
+function drawMovementArrows(){
+
+    windLayer.clearLayers();
+
+    cloudLayer.clearLayers();
+
+    movementParticles =
+        [];
+
+
+    if(!currentWeather){
+
+        return;
+
+    }
+
+
+    const lat =
+        selectedLocation.latitude;
+
+
+    const lon =
+        selectedLocation.longitude;
+
+
+    /*
+       Open-Meteo gives the direction FROM which
+       wind originates.
+
+       For actual movement we use +180 degrees.
+    */
+
+    const windFrom =
+        Number(
+            currentWeather.wind_direction_10m ||
+            0
+        );
+
+
+    const windTo =
+        (windFrom + 180) % 360;
+
+
+    const windSpeed =
+        Number(
+            currentWeather.wind_speed_10m ||
+            0
+        );
+
+
+    /* WIND */
+
+    if(windVisible){
+
+        for(
+            let i=0;
+            i<40;
+            i++
+        ){
+
+            movementParticles.push({
+
+                lat:
+                    lat +
+                    (Math.random()-.5) *
+                    .45,
+
+                lon:
+                    lon +
+                    (Math.random()-.5) *
+                    .70,
+
+                progress:
+                    Math.random(),
+
+                speed:
+                    .00005 +
+                    Math.min(
+                        windSpeed /
+                        850000,
+                        .00012
+                    ),
+
+                direction:
+                    windTo,
+
+                type:
+                    "wind"
+
+            });
+
+        }
+
+    }
+
+
+    /* CLOUD */
+
+    if(cloudVisible){
+
+        for(
+            let i=0;
+            i<25;
+            i++
+        ){
+
+            movementParticles.push({
+
+                lat:
+                    lat +
+                    (Math.random()-.5) *
+                    .55,
+
+                lon:
+                    lon +
+                    (Math.random()-.5) *
+                    .90,
+
+                progress:
+                    Math.random(),
+
+                speed:
+                    .000018 +
+                    Math.min(
+                        windSpeed /
+                        1500000,
+                        .00006
+                    ),
+
+                direction:
+                    (windTo + 8) % 360,
+
+                type:
+                    "cloud"
+
+            });
+
+        }
+
+    }
+
+
+    animateWindParticles();
+
+    updateWindInformation();
+
+}
+
+
+/* =========================================================
+   ANIMATE PARTICLES
+========================================================= */
+
+function animateWindParticles(){
+
+    if(
+        windAnimationFrame
+    ){
+
+        cancelAnimationFrame(
+            windAnimationFrame
+        );
+
+    }
+
+
+    const animate =
+        timestamp => {
+
+            if(
+                timestamp -
+                lastWindAnimation <
+                45
+            ){
+
+                windAnimationFrame =
+                    requestAnimationFrame(
+                        animate
+                    );
+
+                return;
+
+            }
+
+
+            lastWindAnimation =
+                timestamp;
+
+
+            windLayer.clearLayers();
+
+            cloudLayer.clearLayers();
+
+
+            movementParticles.forEach(
+                particle => {
+
+                    particle.progress +=
+                        particle.speed *
+                        2.5;
+
+
+                    if(
+                        particle.progress > 1
+                    ){
+
+                        particle.progress =
+                            0;
+
+
+                        particle.lat =
+                            selectedLocation.latitude +
+                            (Math.random()-.5) *
+                            .55;
+
+
+                        particle.lon =
+                            selectedLocation.longitude +
+                            (Math.random()-.5) *
+                            .80;
+
+                    }
+
+
+                    const rad =
+                        particle.direction *
+                        Math.PI /
+                        180;
+
+
+                    const distance =
+                        particle.progress *
+                        .55;
+
+
+                    const pLat =
+                        particle.lat +
+                        Math.cos(rad) *
+                        distance;
+
+
+                    const pLon =
+                        particle.lon +
+                        Math.sin(rad) *
+                        distance;
+
+
+                    const icon =
+                        createLiveParticleIcon(
+                            particle.direction,
+                            particle.type
+                        );
+
+
+                    const marker =
+                        L.marker(
+                            [
+                                pLat,
+                                pLon
+                            ],
+                            {
+
+                                icon:
+                                    icon,
+
+                                interactive:false
+
+                            }
+                        );
+
+
+                    if(
+                        particle.type ===
+                        "wind"
+                    ){
+
+                        marker.addTo(
+                            windLayer
+                        );
+
+                    }
+                    else{
+
+                        marker.addTo(
+                            cloudLayer
+                        );
+
+                    }
+
+                }
+            );
+
+
+            windAnimationFrame =
+                requestAnimationFrame(
+                    animate
+                );
+
+        };
+
+
+    windAnimationFrame =
+        requestAnimationFrame(
+            animate
+        );
+
+}
+
+
+/* =========================================================
+   PARTICLE ICON
+========================================================= */
+
+function createLiveParticleIcon(
+    direction,
+    type
+){
+
+    const arrow =
+        type === "cloud"
+            ? "➜"
+            : "➤";
+
+
+    const className =
+        type === "cloud"
+            ? "live-cloud-particle"
+            : "live-wind-particle";
+
+
+    return L.divIcon({
+
+        className:
+            "movement-particle",
+
+        html:`
+
+            <div
+                class="${className}"
+                style="
+                    transform:
+                        rotate(${direction}deg);
+                "
+            >
+                ${arrow}
+            </div>
+
+        `,
+
+        iconSize:[
+            32,
+            32
+        ],
+
+        iconAnchor:[
+            16,
+            16
+        ]
+
+    });
+
+}
+
+
+/* =========================================================
+   WIND INFORMATION
+========================================================= */
+
+function updateWindInformation(){
+
+    if(!currentWeather){
+
+        return;
+
+    }
+
+
+    const speed =
+        Number(
+            currentWeather.wind_speed_10m ||
+            0
+        );
+
+
+    const fromDegrees =
+        Number(
+            currentWeather.wind_direction_10m ||
+            0
+        );
+
+
+    const toDegrees =
+        (fromDegrees + 180) % 360;
+
+
+    const from =
+        degreesToDirection(
+            fromDegrees
+        );
+
+
+    const to =
+        degreesToDirection(
+            toDegrees
+        );
+
+
+    const speedElement =
+        document.getElementById(
+            "liveWindSpeed"
+        );
+
+
+    if(speedElement){
+
+        speedElement.innerText =
+            `${speed.toFixed(1)} km/h`;
+
+    }
+
+
+    const movementElement =
+        document.getElementById(
+            "liveWindMovement"
+        );
+
+
+    if(movementElement){
+
+        movementElement.innerText =
+            `${from} → ${to}`;
+
+    }
+
+
+    const fromElement =
+        document.getElementById(
+            "windFrom"
+        );
+
+
+    if(fromElement){
+
+        fromElement.innerText =
+            from;
+
+    }
+
+
+    const toElement =
+        document.getElementById(
+            "windTo"
+        );
+
+
+    if(toElement){
+
+        toElement.innerText =
+            to;
+
+    }
+
+
+    const bearingElement =
+        document.getElementById(
+            "windBearing"
+        );
+
+
+    if(bearingElement){
+
+        bearingElement.innerText =
+            `${Math.round(toDegrees)}°`;
+
+    }
+
+}
+
+
+/* =========================================================
+   AUTO WEATHER REFRESH
+========================================================= */
+
+setInterval(
+    function(){
+
+        if(
+            selectedLocation &&
+            selectedLocation.latitude != null
+        ){
+
+            loadWeather(
+                selectedLocation.latitude,
+                selectedLocation.longitude
+            );
+
+        }
+
+    },
+    5 * 60 * 1000
+);
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function getRiskClass(
+    tier
+){
+
+    if(
+        String(tier)
+            .toUpperCase()
+            .includes("CRITICAL")
+    ){
+
+        return "critical";
+
+    }
+
+
+    if(
+        String(tier)
+            .toUpperCase()
+            .includes("HIGH")
+    ){
+
+        return "high";
+
+    }
+
+
+    return "normal";
+
+}
+
+
+function degreesToDirection(
+    degrees
+){
+
+    const dirs = [
+
+        "N",
+        "NNE",
+        "NE",
+        "ENE",
+        "E",
+        "ESE",
+        "SE",
+        "SSE",
+        "S",
+        "SSW",
+        "SW",
+        "WSW",
+        "W",
+        "WNW",
+        "NW",
+        "NNW"
+
+    ];
+
+
+    const index =
+        Math.round(
+            degrees / 22.5
+        ) % 16;
+
+
+    return dirs[index];
+
+}
+
+
+function weatherCodeIcon(
+    code
+){
+
+    code =
+        Number(code);
+
+
+    if(code === 0)
+        return "☀️";
+
+
+    if(
+        code === 1 ||
+        code === 2
+    )
+        return "🌤️";
+
+
+    if(code === 3)
+        return "☁️";
+
+
+    if(
+        code >= 45 &&
+        code <= 48
+    )
+        return "🌫️";
+
+
+    if(
+        code >= 51 &&
+        code <= 67
+    )
+        return "🌧️";
+
+
+    if(
+        code >= 71 &&
+        code <= 77
+    )
+        return "❄️";
+
+
+    if(
+        code >= 80 &&
+        code <= 82
+    )
+        return "🌦️";
+
+
+    if(code >= 95)
+        return "⛈️";
+
+
+    return "🌤️";
+
+}
+
+
+function escapeHtml(
+    value
+){
+
+    return String(value)
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   NAV ACTIVE SECTION
+========================================================= */
+
+const sections =
+    document.querySelectorAll(
+        "main section[id]"
+    );
+
+
+const navLinks =
+    document.querySelectorAll(
+        ".nav-links a"
+    );
+
+
+window.addEventListener(
+    "scroll",
+    () => {
+
+        let current =
+            "home";
+
+
+        sections.forEach(
+            section => {
+
+                const top =
+                    section.offsetTop -
+                    120;
+
+
+                if(
+                    window.scrollY >=
+                    top
+                ){
+
+                    current =
+                        section.id;
+
+                }
+
+            }
+        );
+
+
+        navLinks.forEach(
+            link => {
+
+                link.classList.toggle(
+                    "active",
+                    link.getAttribute(
+                        "href"
+                    ) ===
+                    "#" + current
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+async function initialize(){
+
+    await loadWeather(
+        DEFAULT_LOCATION.latitude,
+        DEFAULT_LOCATION.longitude
+    );
+
+
+    await requestFloodRisk(
+        DEFAULT_LOCATION.latitude,
+        DEFAULT_LOCATION.longitude
+    );
+
+
+    loadRadar();
+
+}
+
+
+initialize();
+
+</script>
+
+
+<!-- ============================================================
+     GLOBAL AI PEOPLE'S ASSISTANT
+============================================================ -->
+<button id="ewsAiLauncher" class="ews-ai-launcher" type="button">
+    🤖 AI People's Assistant
+</button>
+
+<section id="ewsAiPanel" class="ews-ai-panel" aria-label="AI People's Assistant">
+    <div class="ews-ai-head">
+        <div>
+            <strong>🤖 Odisha Flood AI Assistant</strong>
+            <small>Emergency guidance • preparedness • website help</small>
+        </div>
+        <button id="ewsAiClose" class="ews-ai-close" type="button" aria-label="Close">×</button>
+    </div>
+
+    <div id="ewsAiMessages" class="ews-ai-messages">
+        <div class="ews-ai-msg bot">
+            Namaste! I’m the Odisha Flood EWS People's Assistant.
+            Ask me about flood safety, preparedness, emergency services,
+            this website, or what to do during heavy rain.
+        </div>
+    </div>
+
+    <div class="ews-ai-quick">
+        <button type="button" data-ai-q="What should I do during a flood?">Flood safety</button>
+        <button type="button" data-ai-q="What emergency number should I call?">Emergency</button>
+        <button type="button" data-ai-q="What does HIGH RISK mean?">Risk meaning</button>
+        <button type="button" data-ai-q="What should I keep in an emergency kit?">Emergency kit</button>
+    </div>
+
+    <div id="ewsAiStatus" class="ews-ai-status"></div>
+
+    <form id="ewsAiForm" class="ews-ai-form">
+        <textarea id="ewsAiInput" class="ews-ai-input" rows="2"
+            placeholder="Ask the AI assistant..."></textarea>
+        <button class="ews-ai-send" type="submit">Send</button>
+    </form>
+</section>
+
+
+<script>
+/* ============================================================
+   GLOBAL AI PEOPLE'S ASSISTANT
+============================================================ */
+(function(){
+    const launcher=document.getElementById("ewsAiLauncher");
+    const panel=document.getElementById("ewsAiPanel");
+    const close=document.getElementById("ewsAiClose");
+    const form=document.getElementById("ewsAiForm");
+    const input=document.getElementById("ewsAiInput");
+    const messages=document.getElementById("ewsAiMessages");
+    const status=document.getElementById("ewsAiStatus");
+
+    if(!launcher || !panel || !form) return;
+
+    function apiBase(){
+        return window.location.origin;
+    }
+
+    function addMessage(text, who){
+        const el=document.createElement("div");
+        el.className="ews-ai-msg "+who;
+        el.textContent=text;
+        messages.appendChild(el);
+        messages.scrollTop=messages.scrollHeight;
+        return el;
+    }
+
+    function collectContext(){
+        const context={};
+
+        // Citizen pages may already expose a saved/current location.
+        try{
+            const latEls=["latitude","lat","locationLatitude"];
+            const lonEls=["longitude","lon","locationLongitude"];
+            for(const id of latEls){
+                const el=document.getElementById(id);
+                if(el && el.value){ context.latitude=Number(el.value); break; }
+            }
+            for(const id of lonEls){
+                const el=document.getElementById(id);
+                if(el && el.value){ context.longitude=Number(el.value); break; }
+            }
+        }catch(_){}
+
+        try{
+            const tier=document.getElementById("riskTier");
+            const probability=document.getElementById("riskProbability");
+            if(tier) context.hazard_tier=tier.textContent.trim();
+            if(probability) context.flood_probability_pct=probability.textContent.trim();
+        }catch(_){}
+
+        // Use the browser's stored citizen token only as a signal;
+        // never send the token to the AI endpoint.
+        context.logged_in=!!localStorage.getItem("ews_token");
+        return context;
+    }
+
+    async function ask(question){
+        question=(question||"").trim();
+        if(!question) return;
+
+        addMessage(question,"user");
+        input.value="";
+        status.textContent="AI is preparing an answer...";
+
+        const thinking=addMessage("Thinking…","bot");
+
+        try{
+            const response=await fetch(apiBase()+"/api/v1/ai/assistant",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({
+                    message:question,
+                    page:location.pathname,
+                    context:collectContext()
+                })
+            });
+
+            const data=await response.json().catch(()=>({}));
+            if(!response.ok){
+                throw new Error(data.detail || "AI assistant request failed.");
+            }
+
+            thinking.textContent=data.answer || "I could not generate an answer.";
+            status.textContent="";
+        }catch(error){
+            thinking.textContent=
+                "The AI assistant is unavailable right now. For an emergency, call 112 and follow official Odisha disaster-management instructions.";
+            status.textContent=error.message || "AI unavailable";
+        }
+
+        messages.scrollTop=messages.scrollHeight;
+    }
+
+    launcher.addEventListener("click",()=>{
+        panel.classList.add("open");
+        input.focus();
+    });
+
+    close.addEventListener("click",()=>panel.classList.remove("open"));
+
+    form.addEventListener("submit",e=>{
+        e.preventDefault();
+        ask(input.value);
+    });
+
+    document.querySelectorAll("[data-ai-q]").forEach(btn=>{
+        btn.addEventListener("click",()=>ask(btn.getAttribute("data-ai-q")));
+    });
+
+    input.addEventListener("keydown",e=>{
+        if(e.key==="Enter" && !e.shiftKey){
+            e.preventDefault();
+            form.requestSubmit();
+        }
+    });
+})();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+ const b=document.getElementById('ewsPresenterBtn'); if(b)b.addEventListener('click',()=>{
+   document.body.classList.toggle('ews-presenter-mode');
+   if(document.body.classList.contains('ews-presenter-mode')){try{document.getElementById('ewsPresentationSection').scrollIntoView({behavior:'smooth'});}catch(e){}}
+ });
+});
+</script>
+
+<script>
+/* ============================================================
+   EWS 2026 GLOBAL ENHANCEMENTS
+============================================================ */
+(function(){
+  const STORAGE_THEME='ews_global_theme';
+  const STORAGE_LANG='ews_global_language';
+  const LANGS={
+    en:{label:'English',navHome:'Home',navWeather:'Weather',navForecast:'Forecast',navAbout:'About',navSources:'Sources',navPortal:'Citizen Portal',navAdmin:'Admin Portal',theme:'Theme',live:'Live Data',presentation:'Live Presentation',sources:'Sources & Datasets',run:'Run Live Assessment'},
+    hi:{label:'हिन्दी',navHome:'होम',navWeather:'मौसम',navForecast:'पूर्वानुमान',navAbout:'परिचय',navSources:'स्रोत',navPortal:'नागरिक पोर्टल',navAdmin:'एडमिन पोर्टल',theme:'थीम',live:'लाइव डेटा',presentation:'लाइव प्रस्तुति',sources:'स्रोत और डेटासेट',run:'लाइव आकलन चलाएँ'},
+    or:{label:'ଓଡ଼ିଆ',navHome:'ମୁଖ୍ୟପୃଷ୍ଠା',navWeather:'ପାଣିପାଗ',navForecast:'ପୂର୍ବାନୁମାନ',navAbout:'ପରିଚୟ',navSources:'ସ୍ରୋତ',navPortal:'ନାଗରିକ ପୋର୍ଟାଲ୍',navAdmin:'ଆଡମିନ୍ ପୋର୍ଟାଲ୍',theme:'ଥିମ୍',live:'ଲାଇଭ୍ ଡାଟା',presentation:'ଲାଇଭ୍ ପ୍ରସ୍ତୁତି',sources:'ସ୍ରୋତ ଏବଂ ଡାଟାସେଟ୍',run:'ଲାଇଭ୍ ମୂଲ୍ୟାୟନ ଚଲାନ୍ତୁ'},
+    bn:{label:'বাংলা',navHome:'হোম',navWeather:'আবহাওয়া',navForecast:'পূর্বাভাস',navAbout:'পরিচিতি',navSources:'উৎস',navPortal:'নাগরিক পোর্টাল',navAdmin:'অ্যাডমিন পোর্টাল',theme:'থিম',live:'লাইভ ডেটা',presentation:'লাইভ উপস্থাপনা',sources:'উৎস ও ডেটাসেট',run:'লাইভ মূল্যায়ন চালান'},
+    te:{label:'తెలుగు',navHome:'హోమ్',navWeather:'వాతావరణం',navForecast:'అంచనా',navAbout:'గురించి',navSources:'మూలాలు',navPortal:'పౌర పోర్టల్',navAdmin:'అడ్మిన్ పోర్టల్',theme:'థీమ్',live:'లైవ్ డేటా',presentation:'లైవ్ ప్రెజెంటేషన్',sources:'మూలాలు & డేటాసెట్లు',run:'లైవ్ అసెస్‌మెంట్ రన్'}
+  };
+  function lang(){return localStorage.getItem(STORAGE_LANG)||'en'}
+  function applyLang(){
+    const l=LANGS[lang()]||LANGS.en;
+    const nav=document.querySelectorAll('.navbar .nav-links a');
+    const vals=[l.navHome,l.navWeather,l.navForecast,l.navAbout,'Contribution',l.navSources,l.navPortal,l.navAdmin];
+    nav.forEach((a,i)=>{ if(vals[i]) a.textContent=vals[i]; });
+    document.documentElement.lang=lang();
+    document.querySelectorAll('[data-ews-lang]').forEach(el=>{ const v=el.getAttribute('data-ews-lang-'+lang())||el.getAttribute('data-ews-lang-en'); if(v) el.textContent=v; });
+    const sel=document.getElementById('ewsGlobalLanguage'); if(sel) sel.value=lang();
+  }
+  function applyTheme(){
+    const t=localStorage.getItem(STORAGE_THEME)||'dark';
+    document.documentElement.setAttribute('data-ews-theme',t);
+    document.body.classList.toggle('ews-light',t==='light');
+    const b=document.getElementById('ewsGlobalTheme'); if(b) b.textContent=t==='light'?'🌙':'☀️';
+  }
+  function controls(){
+    if(document.getElementById('ewsGlobalControls')) return;
+    const wrap=document.createElement('div'); wrap.id='ewsGlobalControls'; wrap.innerHTML=`<select id="ewsGlobalLanguage" aria-label="Language"><option value="en">English</option><option value="hi">हिन्दी</option><option value="or">ଓଡ଼ିଆ</option><option value="bn">বাংলা</option><option value="te">తెలుగు</option></select><button id="ewsGlobalTheme" type="button" title="Theme">☀️</button>`;
+    document.body.appendChild(wrap);
+    const sel=wrap.querySelector('#ewsGlobalLanguage'); sel.value=lang(); sel.addEventListener('change',e=>{localStorage.setItem(STORAGE_LANG,e.target.value); applyLang();});
+    wrap.querySelector('#ewsGlobalTheme').addEventListener('click',()=>{localStorage.setItem(STORAGE_THEME,(localStorage.getItem(STORAGE_THEME)||'dark')==='dark'?'light':'dark');applyTheme();});
+  }
+  async function sourceStatus(){
+    try{
+      const r=await fetch('/api/v1/disaster/source-status',{cache:'no-store'}); if(!r.ok) return null; return await r.json();
+    }catch(e){return null}
+  }
+  async function updateLiveSourceCards(){
+    const d=await sourceStatus(); if(!d) return;
+    const s=d.sources||{};
+    const map={obs:s.observational_weather?.available,satellite:s.satellite?.numeric_rainfall_available,radar:s.radar?.available,nwp:s.nwp?.available,ml:d.model?.model?.ready};
+    Object.entries(map).forEach(([k,v])=>{const e=document.getElementById('ewsLive_'+k);if(e)e.textContent=v?'ONLINE':'OFFLINE';});
+    const sat=s.satellite||{};
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v??'—'};
+    set('ewsSat24',sat.rainfall_24h_mm!=null?Number(sat.rainfall_24h_mm).toFixed(1)+' mm':'—');
+    set('ewsSat30',sat.rainfall_30d_mm!=null?Number(sat.rainfall_30d_mm).toFixed(1)+' mm':'—');
+    set('ewsFiles',sat.files_read!=null?sat.files_read:'—');
+    const model=d.model?.model||{}; set('ewsModel',model.ready?'READY':'OFFLINE');
+    const el=document.getElementById('ewsUpdated'); if(el) el.textContent=new Date().toLocaleString();
+  }
+  window.ewsRefreshLive=updateLiveSourceCards;
+  document.addEventListener('DOMContentLoaded',()=>{controls();applyTheme();applyLang();updateLiveSourceCards();setInterval(updateLiveSourceCards,60000);});
+})();
+</script>
+
+<div style="position:fixed;bottom:8px;left:8px;z-index:9999;font-size:11px;opacity:.7">Prototype inundation depth/lead-time estimates; radar numeric QPE requires a quantitative radar feed.</div></body>
+</html>

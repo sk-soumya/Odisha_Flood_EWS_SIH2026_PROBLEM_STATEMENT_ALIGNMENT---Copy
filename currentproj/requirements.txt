@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+httpx
+python-dotenv
+PyJWT
+pydantic
+email-validator
+python-multipart
+cryptography
+pywebpush
+pytest
+
+joblib
+
+scikit-learn
+
+rasterio

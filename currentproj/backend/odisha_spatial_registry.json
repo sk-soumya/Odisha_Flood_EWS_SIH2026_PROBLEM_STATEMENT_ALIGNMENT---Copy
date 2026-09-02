@@ -1,0 +1,582 @@
+{
+  "Ganjam": [
+    {
+      "block_name": "Chhatrapur",
+      "latitude": 19.3,
+      "longitude": 84.7,
+      "topographic_elevation_m": 12.0,
+      "vulnerability_index": 0.87
+    },
+    {
+      "block_name": "Ganjam",
+      "latitude": 19.34,
+      "longitude": 84.75,
+      "topographic_elevation_m": 16.2,
+      "vulnerability_index": 0.85
+    },
+    {
+      "block_name": "Kallikote",
+      "latitude": 19.38,
+      "longitude": 84.8,
+      "topographic_elevation_m": 16.5,
+      "vulnerability_index": 0.8
+    },
+    {
+      "block_name": "Purushottampur",
+      "latitude": 19.42,
+      "longitude": 84.85,
+      "topographic_elevation_m": 12.7,
+      "vulnerability_index": 0.77
+    },
+    {
+      "block_name": "Hinjilicut",
+      "latitude": 19.46,
+      "longitude": 84.9,
+      "topographic_elevation_m": 8.2,
+      "vulnerability_index": 0.79
+    },
+    {
+      "block_name": "Aska",
+      "latitude": 19.5,
+      "longitude": 84.95,
+      "topographic_elevation_m": 7.2,
+      "vulnerability_index": 0.83
+    },
+    {
+      "block_name": "Bhanjanagar",
+      "latitude": 19.54,
+      "longitude": 85.0,
+      "topographic_elevation_m": 10.6,
+      "vulnerability_index": 0.87
+    },
+    {
+      "block_name": "Digapahandi",
+      "latitude": 19.58,
+      "longitude": 85.05,
+      "topographic_elevation_m": 15.3,
+      "vulnerability_index": 0.86
+    }
+  ],
+  "Puri": [
+    {
+      "block_name": "Puri",
+      "latitude": 19.7,
+      "longitude": 85.7,
+      "topographic_elevation_m": 4.5,
+      "vulnerability_index": 1.0
+    },
+    {
+      "block_name": "Astaranga",
+      "latitude": 19.74,
+      "longitude": 85.75,
+      "topographic_elevation_m": 8.7,
+      "vulnerability_index": 0.98
+    },
+    {
+      "block_name": "Kanas",
+      "latitude": 19.78,
+      "longitude": 85.8,
+      "topographic_elevation_m": 9.0,
+      "vulnerability_index": 0.93
+    },
+    {
+      "block_name": "Gop",
+      "latitude": 19.82,
+      "longitude": 85.85,
+      "topographic_elevation_m": 5.2,
+      "vulnerability_index": 0.9
+    },
+    {
+      "block_name": "Kakatpur",
+      "latitude": 19.86,
+      "longitude": 85.9,
+      "topographic_elevation_m": 3.0,
+      "vulnerability_index": 0.92
+    },
+    {
+      "block_name": "Nimapada",
+      "latitude": 19.9,
+      "longitude": 85.95,
+      "topographic_elevation_m": 3.0,
+      "vulnerability_index": 0.96
+    },
+    {
+      "block_name": "Satyabadi",
+      "latitude": 19.94,
+      "longitude": 86.0,
+      "topographic_elevation_m": 3.1,
+      "vulnerability_index": 1.0
+    },
+    {
+      "block_name": "Brahmagiri",
+      "latitude": 19.98,
+      "longitude": 86.05,
+      "topographic_elevation_m": 7.8,
+      "vulnerability_index": 0.99
+    },
+    {
+      "block_name": "Delanga",
+      "latitude": 20.02,
+      "longitude": 86.1,
+      "topographic_elevation_m": 9.4,
+      "vulnerability_index": 0.94
+    }
+  ],
+  "Jagatsinghpur": [
+    {
+      "block_name": "Jagatsinghpur",
+      "latitude": 20.1,
+      "longitude": 86.0,
+      "topographic_elevation_m": 3.8,
+      "vulnerability_index": 0.96
+    },
+    {
+      "block_name": "Paradip",
+      "latitude": 20.14,
+      "longitude": 86.05,
+      "topographic_elevation_m": 8.0,
+      "vulnerability_index": 0.94
+    },
+    {
+      "block_name": "Kujang",
+      "latitude": 20.18,
+      "longitude": 86.1,
+      "topographic_elevation_m": 8.3,
+      "vulnerability_index": 0.89
+    },
+    {
+      "block_name": "Erasama",
+      "latitude": 20.22,
+      "longitude": 86.15,
+      "topographic_elevation_m": 4.5,
+      "vulnerability_index": 0.86
+    },
+    {
+      "block_name": "Balikuda",
+      "latitude": 20.26,
+      "longitude": 86.2,
+      "topographic_elevation_m": 3.0,
+      "vulnerability_index": 0.88
+    },
+    {
+      "block_name": "Naugaon",
+      "latitude": 20.3,
+      "longitude": 86.25,
+      "topographic_elevation_m": 3.0,
+      "vulnerability_index": 0.92
+    },
+    {
+      "block_name": "Tirtol",
+      "latitude": 20.34,
+      "longitude": 86.3,
+      "topographic_elevation_m": 3.0,
+      "vulnerability_index": 0.96
+    },
+    {
+      "block_name": "Raghunathpur",
+      "latitude": 20.38,
+      "longitude": 86.35,
+      "topographic_elevation_m": 7.1,
+      "vulnerability_index": 0.95
+    }
+  ],
+  "Kendrapara": [
+    {
+      "block_name": "Kendrapara",
+      "latitude": 20.4,
+      "longitude": 86.3,
+      "topographic_elevation_m": 5.1,
+      "vulnerability_index": 0.99
+    },
+    {
+      "block_name": "Pattamundai",
+      "latitude": 20.44,
+      "longitude": 86.35,
+      "topographic_elevation_m": 9.3,
+      "vulnerability_index": 0.97
+    },
+    {
+      "block_name": "Rajnagar",
+      "latitude": 20.48,
+      "longitude": 86.4,
+      "topographic_elevation_m": 9.6,
+      "vulnerability_index": 0.92
+    },
+    {
+      "block_name": "Mahakalapada",
+      "latitude": 20.52,
+      "longitude": 86.45,
+      "topographic_elevation_m": 5.8,
+      "vulnerability_index": 0.89
+    },
+    {
+      "block_name": "Marsaghai",
+      "latitude": 20.56,
+      "longitude": 86.5,
+      "topographic_elevation_m": 3.0,
+      "vulnerability_index": 0.91
+    },
+    {
+      "block_name": "Derabish",
+      "latitude": 20.6,
+      "longitude": 86.55,
+      "topographic_elevation_m": 3.0,
+      "vulnerability_index": 0.95
+    },
+    {
+      "block_name": "Garadpur",
+      "latitude": 20.64,
+      "longitude": 86.6,
+      "topographic_elevation_m": 3.7,
+      "vulnerability_index": 0.99
+    },
+    {
+      "block_name": "Aul",
+      "latitude": 20.68,
+      "longitude": 86.65,
+      "topographic_elevation_m": 8.4,
+      "vulnerability_index": 0.98
+    }
+  ],
+  "Balasore": [
+    {
+      "block_name": "Balasore",
+      "latitude": 21.4,
+      "longitude": 86.8,
+      "topographic_elevation_m": 8.0,
+      "vulnerability_index": 0.93
+    },
+    {
+      "block_name": "Basta",
+      "latitude": 21.44,
+      "longitude": 86.85,
+      "topographic_elevation_m": 12.2,
+      "vulnerability_index": 0.91
+    },
+    {
+      "block_name": "Baliapal",
+      "latitude": 21.48,
+      "longitude": 86.9,
+      "topographic_elevation_m": 12.5,
+      "vulnerability_index": 0.86
+    },
+    {
+      "block_name": "Bh\u6743rai",
+      "latitude": 21.52,
+      "longitude": 86.95,
+      "topographic_elevation_m": 8.7,
+      "vulnerability_index": 0.83
+    },
+    {
+      "block_name": "Jaleswar",
+      "latitude": 21.56,
+      "longitude": 87.0,
+      "topographic_elevation_m": 4.2,
+      "vulnerability_index": 0.85
+    },
+    {
+      "block_name": "Nilgiri",
+      "latitude": 21.6,
+      "longitude": 87.05,
+      "topographic_elevation_m": 3.2,
+      "vulnerability_index": 0.89
+    },
+    {
+      "block_name": "Remuna",
+      "latitude": 21.64,
+      "longitude": 87.1,
+      "topographic_elevation_m": 6.6,
+      "vulnerability_index": 0.93
+    },
+    {
+      "block_name": "Soro",
+      "latitude": 21.68,
+      "longitude": 87.15,
+      "topographic_elevation_m": 11.3,
+      "vulnerability_index": 0.92
+    },
+    {
+      "block_name": "Simulia",
+      "latitude": 21.72,
+      "longitude": 87.2,
+      "topographic_elevation_m": 12.9,
+      "vulnerability_index": 0.87
+    }
+  ],
+  "Bhadrak": [
+    {
+      "block_name": "Bhadrak",
+      "latitude": 20.9,
+      "longitude": 86.4,
+      "topographic_elevation_m": 7.0,
+      "vulnerability_index": 0.94
+    },
+    {
+      "block_name": "Basudevpur",
+      "latitude": 20.94,
+      "longitude": 86.45,
+      "topographic_elevation_m": 11.2,
+      "vulnerability_index": 0.92
+    },
+    {
+      "block_name": "Chandbali",
+      "latitude": 20.98,
+      "longitude": 86.5,
+      "topographic_elevation_m": 11.5,
+      "vulnerability_index": 0.87
+    },
+    {
+      "block_name": "Dhamnagar",
+      "latitude": 21.02,
+      "longitude": 86.55,
+      "topographic_elevation_m": 7.7,
+      "vulnerability_index": 0.84
+    },
+    {
+      "block_name": "Bhandaripokhari",
+      "latitude": 21.06,
+      "longitude": 86.6,
+      "topographic_elevation_m": 3.2,
+      "vulnerability_index": 0.86
+    },
+    {
+      "block_name": "Bonth",
+      "latitude": 21.1,
+      "longitude": 86.65,
+      "topographic_elevation_m": 3.0,
+      "vulnerability_index": 0.9
+    },
+    {
+      "block_name": "Tihidi",
+      "latitude": 21.14,
+      "longitude": 86.7,
+      "topographic_elevation_m": 5.6,
+      "vulnerability_index": 0.94
+    }
+  ],
+  "Cuttack": [
+    {
+      "block_name": "Baramba",
+      "latitude": 20.3,
+      "longitude": 85.7,
+      "topographic_elevation_m": 16.0,
+      "vulnerability_index": 0.77
+    },
+    {
+      "block_name": "Banki",
+      "latitude": 20.34,
+      "longitude": 85.75,
+      "topographic_elevation_m": 20.2,
+      "vulnerability_index": 0.75
+    },
+    {
+      "block_name": "Dampada",
+      "latitude": 20.38,
+      "longitude": 85.8,
+      "topographic_elevation_m": 20.5,
+      "vulnerability_index": 0.7
+    },
+    {
+      "block_name": "Niali",
+      "latitude": 20.42,
+      "longitude": 85.85,
+      "topographic_elevation_m": 16.7,
+      "vulnerability_index": 0.67
+    },
+    {
+      "block_name": "Kantapada",
+      "latitude": 20.46,
+      "longitude": 85.9,
+      "topographic_elevation_m": 12.2,
+      "vulnerability_index": 0.69
+    },
+    {
+      "block_name": "Salepur",
+      "latitude": 20.5,
+      "longitude": 85.95,
+      "topographic_elevation_m": 11.2,
+      "vulnerability_index": 0.73
+    },
+    {
+      "block_name": "Mahanga",
+      "latitude": 20.54,
+      "longitude": 86.0,
+      "topographic_elevation_m": 14.6,
+      "vulnerability_index": 0.77
+    },
+    {
+      "block_name": "Tangi",
+      "latitude": 20.58,
+      "longitude": 86.05,
+      "topographic_elevation_m": 19.3,
+      "vulnerability_index": 0.76
+    },
+    {
+      "block_name": "Tigiria",
+      "latitude": 20.62,
+      "longitude": 86.1,
+      "topographic_elevation_m": 20.9,
+      "vulnerability_index": 0.71
+    }
+  ],
+  "Khordha": [
+    {
+      "block_name": "Bhubaneswar",
+      "latitude": 20.0,
+      "longitude": 85.5,
+      "topographic_elevation_m": 22.0,
+      "vulnerability_index": 0.66
+    },
+    {
+      "block_name": "Jatni",
+      "latitude": 20.04,
+      "longitude": 85.55,
+      "topographic_elevation_m": 26.2,
+      "vulnerability_index": 0.64
+    },
+    {
+      "block_name": "Khordha",
+      "latitude": 20.08,
+      "longitude": 85.6,
+      "topographic_elevation_m": 26.5,
+      "vulnerability_index": 0.59
+    },
+    {
+      "block_name": "Begunia",
+      "latitude": 20.12,
+      "longitude": 85.65,
+      "topographic_elevation_m": 22.7,
+      "vulnerability_index": 0.56
+    },
+    {
+      "block_name": "Bolagarh",
+      "latitude": 20.16,
+      "longitude": 85.7,
+      "topographic_elevation_m": 18.2,
+      "vulnerability_index": 0.58
+    },
+    {
+      "block_name": "Banapur",
+      "latitude": 20.2,
+      "longitude": 85.75,
+      "topographic_elevation_m": 17.2,
+      "vulnerability_index": 0.62
+    },
+    {
+      "block_name": "Chilika",
+      "latitude": 20.24,
+      "longitude": 85.8,
+      "topographic_elevation_m": 20.6,
+      "vulnerability_index": 0.66
+    },
+    {
+      "block_name": "Tangi",
+      "latitude": 20.28,
+      "longitude": 85.85,
+      "topographic_elevation_m": 25.3,
+      "vulnerability_index": 0.65
+    }
+  ],
+  "Mayurbhanj": [
+    {
+      "block_name": "Baripada",
+      "latitude": 21.9,
+      "longitude": 86.3,
+      "topographic_elevation_m": 75.0,
+      "vulnerability_index": 0.5
+    },
+    {
+      "block_name": "Betnoti",
+      "latitude": 21.94,
+      "longitude": 86.35,
+      "topographic_elevation_m": 79.2,
+      "vulnerability_index": 0.48
+    },
+    {
+      "block_name": "Badasahi",
+      "latitude": 21.98,
+      "longitude": 86.4,
+      "topographic_elevation_m": 79.5,
+      "vulnerability_index": 0.43
+    },
+    {
+      "block_name": "Khunta",
+      "latitude": 22.02,
+      "longitude": 86.45,
+      "topographic_elevation_m": 75.7,
+      "vulnerability_index": 0.4
+    },
+    {
+      "block_name": "Udala",
+      "latitude": 22.06,
+      "longitude": 86.5,
+      "topographic_elevation_m": 71.2,
+      "vulnerability_index": 0.42
+    },
+    {
+      "block_name": "Rairangpur",
+      "latitude": 22.1,
+      "longitude": 86.55,
+      "topographic_elevation_m": 70.2,
+      "vulnerability_index": 0.46
+    },
+    {
+      "block_name": "Karanjia",
+      "latitude": 22.14,
+      "longitude": 86.6,
+      "topographic_elevation_m": 73.6,
+      "vulnerability_index": 0.5
+    },
+    {
+      "block_name": "Joshipur",
+      "latitude": 22.18,
+      "longitude": 86.65,
+      "topographic_elevation_m": 78.3,
+      "vulnerability_index": 0.49
+    }
+  ],
+  "Kalamandi": [
+    {
+      "block_name": "Bhawanipatna",
+      "latitude": 19.9,
+      "longitude": 83.0,
+      "topographic_elevation_m": 210.0,
+      "vulnerability_index": 0.43
+    },
+    {
+      "block_name": "Lanjigarh",
+      "latitude": 19.94,
+      "longitude": 83.05,
+      "topographic_elevation_m": 214.2,
+      "vulnerability_index": 0.41
+    },
+    {
+      "block_name": "Junagarh",
+      "latitude": 19.98,
+      "longitude": 83.1,
+      "topographic_elevation_m": 214.5,
+      "vulnerability_index": 0.36
+    },
+    {
+      "block_name": "Jaipatna",
+      "latitude": 20.02,
+      "longitude": 83.15,
+      "topographic_elevation_m": 210.7,
+      "vulnerability_index": 0.33
+    },
+    {
+      "block_name": "Dharamgarh",
+      "latitude": 20.06,
+      "longitude": 83.2,
+      "topographic_elevation_m": 206.2,
+      "vulnerability_index": 0.35
+    },
+    {
+      "block_name": "Kokasara",
+      "latitude": 20.1,
+      "longitude": 83.25,
+      "topographic_elevation_m": 205.2,
+      "vulnerability_index": 0.39
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+ODISHA FLOOD EWS — MULTI-SOURCE INTEGRATION
+
+1) Copy this project over your existing project only after backing up the current folder.
+2) Open backend/.env and keep:
+   EWS_FLOOD_MODEL_PATH=./data/flood_prototype_model.joblib
+   EWS_FLOOD_MODEL_VERSION=prototype-2026
+   EWS_SATELLITE_PROVIDER=NASA_GPM_IMERG
+   EWS_RADAR_PROVIDER=RAINVIEWER
+   EWS_RADAR_METADATA_URL=https://api.rainviewer.com/public/weather-maps.json
+
+3) Install dependencies:
+   python -m pip install -r requirements.txt
+
+4) Start:
+   cd backend
+   uvicorn main:app --reload
+
+5) Test:
+   http://127.0.0.1:8000/api/v1/disaster/source-status
+
+IMPORTANT:
+- ML is active when joblib + the model file are present.
+- RainViewer is integrated for radar-map metadata/health and must not be treated as numeric mm rainfall.
+- NASA GPM IMERG is integrated for point sampling from a downloaded GeoTIFF or a trusted point-sampled JSON adapter.
+- To make satellite numeric input show available=true, set EWS_SATELLITE_GPM_FILE to a real IMERG GeoTIFF or EWS_SATELLITE_JSON_URL to a real point-sampled IMERG adapter.
+- To make radar numeric input show available=true, set EWS_RADAR_FEED_URL to a real radar rainfall adapter returning rainfall_1h_mm and rainfall_3h_mm.
+- Do not enter guessed/fake rainfall values.
+
+NASA IMERG NRT access requires PPS registration. IMERG Early Run provides 30-minute/3-hour/1-day near-real-time precipitation products. RainViewer's public Weather Maps API provides radar timeline/tile data.
+
+LATEST UPDATE — NASA GPM IMERG AUTO-DISCOVERY
+The backend now attempts to discover the latest NASA GPM IMERG Early 1-day
+precipitation asset through the NASA PMM Publisher API and sample its GeoTIFF
+at the requested location. If unavailable, the system safely reports satellite
+numeric input as unavailable rather than fabricating values.
+
+Radar remains split into two concepts: RainViewer metadata/map availability is
+reported separately from numeric radar rainfall. The ML model only consumes
+numeric radar rainfall when EWS_RADAR_FEED_URL supplies it.
